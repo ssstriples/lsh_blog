@@ -13,6 +13,7 @@
 |------|-------|------|------|
 | [2026-08-07_phase0-1_dev-environment.md](./2026-08-07_phase0-1_dev-environment.md) | Phase 0-1 | Node/pnpm 버전 확인, VS Code 확장, GitHub 레포, `.gitignore` | 2026-08-07 |
 | [2026-08-07_phase0-2_nextjs-scaffolding.md](./2026-08-07_phase0-2_nextjs-scaffolding.md) | Phase 0-2 | Next.js 16 프로젝트 생성, 폴더 구조, ESLint/Prettier, shadcn/ui, 다크모드 | 2026-08-07 |
+| [2026-08-07_phase0-3_backend-setup.md](./2026-08-07_phase0-3_backend-setup.md) | Phase 0-3 | Express+TypeScript 서버, Helmet/RateLimit/에러핸들러/Winston/CORS 보안 미들웨어 | 2026-08-07 |
 
 ## 작성 규칙
 

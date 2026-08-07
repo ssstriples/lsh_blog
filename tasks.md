@@ -33,15 +33,16 @@
 > 기능 단위(로그인, 게시글 CRUD 등) 완료 시 `content/posts/`에 초보자 친화적 블로그 원고를 함께 작성한다.
 
 ### 0-3. 백엔드 초기 세팅
-- [ ] **T010** `backend/` Express 프로젝트 생성
-- [ ] **T011** Express 기본 서버 구성 (`app.ts`, `server.ts`, cors, json 미들웨어)
-- [ ] **T012** 폴더 구조 생성 (routes / controllers / services / middlewares / schemas / lib)
-- [ ] **T013** `nodemon` + `ts-node` 개발 서버 실행 설정
-- [ ] **T013-S** 🔐 `helmet` 보안 헤더 설정
-- [ ] **T013-S2** 🔐 전역 Rate Limiting 설정 (`express-rate-limit`)
-- [ ] **T013-S3** 🔐 전역 에러 핸들러 (스택 트레이스 미노출)
-- [ ] **T013-S4** 🔐 `winston` 로거 설정
-- [ ] **T013-S5** 🔐 CORS 허용 출처 명시적 제한
+- [x] **T010** `backend/` Express 프로젝트 생성
+- [x] **T011** Express 기본 서버 구성 (`app.ts`, `server.ts`, cors, json 미들웨어)
+- [x] **T012** 폴더 구조 생성 (routes / controllers / services / middlewares / schemas / lib)
+- [x] **T013** `nodemon` + `ts-node` 개발 서버 실행 설정
+- [x] **T013-S** 🔐 `helmet` 보안 헤더 설정
+- [x] **T013-S2** 🔐 전역 Rate Limiting 설정 (`express-rate-limit`)
+- [x] **T013-S3** 🔐 전역 에러 핸들러 (스택 트레이스 미노출)
+- [x] **T013-S4** 🔐 `winston` 로거 설정
+- [x] **T013-S5** 🔐 CORS 허용 출처 명시적 제한
+- [x] **T013-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase0-3_backend-setup.md` + 블로그 게시글 #2 작성
 
 ### 0-4. 데이터베이스 세팅
 - [ ] **T014** PostgreSQL(Supabase 등) 프로젝트 생성 및 연결 URL 확보
