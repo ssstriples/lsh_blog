@@ -73,12 +73,23 @@
 
 ---
 
-## 👤 PHASE 2 — 관리자 인증 시스템
+## 👤 PHASE 2 — 회원 인증 시스템 (회원가입 + 로그인)
+
+> ⚠️ **2차 개정 (2026-08-07)**: "관리자 전용 로그인"에서 **"누구나 회원가입 후 로그인 가능"**으로 변경.
+> 관리자(ADMIN)는 회원가입으로 생성된 계정 중 `role`을 수동으로 승격하는 방식(시드/DB 직접 수정)으로 운영.
+
+### 2-0. 회원가입 API (Backend) 🆕
+- [ ] **T028-S** `POST /api/auth/signup` 라우트 생성 (이메일/비밀번호/닉네임)
+- [ ] **T028-S2** Zod 회원가입 입력 검증 (이메일 형식, 비밀번호 강도)
+- [ ] **T028-S3** 이메일 중복 체크 → 409 응답
+- [ ] **T028-S4** `bcrypt.hash()` 비밀번호 해싱 후 저장 (role: USER 기본값)
+- [ ] **T028-S5** 🔐 회원가입 Rate Limit (5회/1시간, 대량 가입 방지)
 
 ### 2-1. 로그인 API (Backend)
 - [ ] **T029** `POST /api/auth/login` 라우트 생성
 - [ ] **T030** Zod 입력 검증 스키마 작성
 - [ ] **T031** 이메일 조회 → `bcrypt.compare()` 비밀번호 검증
+- [ ] **T031-S** 🔐 `status === 'SUSPENDED'` 계정 로그인 차단 (403 + 안내 메시지)
 - [ ] **T032** Access Token(15분) 발급
 - [ ] **T033** Refresh Token(7일) → HttpOnly Cookie 설정
 - [ ] **T034** `POST /api/auth/refresh` — 재발급
@@ -87,56 +98,67 @@
 - [ ] **T035-S2** 🔐 이메일 열거/타이밍 어택 방지 로직 적용
 - [ ] **T035-S3** 🔐 로그인 성공/실패 보안 로그 기록
 
-### 2-2. 인증 미들웨어 (Backend)
-- [ ] **T036** `authMiddleware.ts` — JWT 검증
-- [ ] **T037** `adminMiddleware.ts` — role === 'ADMIN' 체크
-- [ ] **T038** 미들웨어 적용 테스트 (`test/api.http`)
+### 2-2. 인증/인가 미들웨어 (Backend)
+- [ ] **T036** `authMiddleware.ts` — JWT 검증 (로그인 여부만 확인)
+- [ ] **T037** `adminMiddleware.ts` — role === 'ADMIN' 체크 (모더레이션 라우트 전용)
+- [ ] **T037-S** 🆕 `ownershipMiddleware.ts` (또는 서비스 레이어 헬퍼) — 리소스의 `authorId`/`userId` === `req.user.id` 검증, ADMIN은 예외 통과
+- [ ] **T038** 미들웨어 적용 테스트 (`test/api.http`) — 본인 글/타인 글/관리자 3가지 케이스 모두 테스트
 
-### 2-3. 로그인 화면 + NextAuth (Frontend)
+### 2-3. 로그인/회원가입 화면 + NextAuth (Frontend)
 - [ ] **T039** NextAuth v5 설치 및 Credentials Provider 설정
-- [ ] **T040** `/login` 페이지 생성 (관리자 전용)
-- [ ] **T041** 로그인 성공 시 `/admin`으로 리다이렉트, 실패 시 에러 표시
-- [ ] **T042** 헤더에 로그인 상태에 따른 "관리자" 버튼 노출
+- [ ] **T040** `/login` 페이지 생성 (모든 유저 대상)
+- [ ] **T040-S** 🆕 `/signup` 페이지 생성 (이메일/비밀번호/닉네임 입력 폼)
+- [ ] **T041** 로그인 성공 시 이전 페이지(또는 홈)로 리다이렉트, 실패 시 에러 표시
+- [ ] **T042** 헤더에 로그인 상태에 따른 "글쓰기 ✏️" 버튼 및 "마이페이지/로그아웃" 메뉴 노출
 - [ ] **T043** 로그아웃 처리
-- [ ] **T044** `/admin` 경로 미들웨어 접근 제어 (비로그인/비관리자 → 403 리다이렉트)
+- [ ] **T044** `/my/*` 경로 미들웨어 접근 제어 (비로그인 → `/login` 리다이렉트), `/admin/*`는 비관리자 → 403
 
 ---
 
-## 📝 PHASE 3 — 게시글 시스템
+## 📝 PHASE 3 — 게시글 시스템 (전 유저 CRUD + 소유권 검증)
+
+> ⚠️ **2차 개정 (2026-08-07)**: `/api/admin/posts` 관리자 전용 경로 → `/api/posts` 일반 경로 + Ownership 검증으로 변경.
+> `/api/admin/posts`는 이제 "모더레이션(강제 삭제/비공개)" 전용 별도 라우트로 유지.
 
 ### 3-1. 게시글 CRUD API (Backend)
-- [ ] **T045** `POST /api/admin/posts` — 생성 (slug 자동 생성 로직 포함)
-- [ ] **T046** `PATCH /api/admin/posts/:id` — 수정
-- [ ] **T047** `DELETE /api/admin/posts/:id` — 소프트 삭제
-- [ ] **T048** `PATCH /api/admin/posts/:id/status` — DRAFT/PUBLISHED 전환
-- [ ] **T049** `GET /api/posts` — 목록 (페이지네이션, 카테고리/태그 필터, 정렬)
+- [ ] **T045** `POST /api/posts` — 생성 (slug 자동 생성 로직 포함, `authorId`는 `req.user.id`로 서버에서 강제 설정)
+- [ ] **T046** `PATCH /api/posts/:id` — 수정 (🔑 `ownershipMiddleware` 적용: 본인 글만, ADMIN 예외)
+- [ ] **T047** `DELETE /api/posts/:id` — 소프트 삭제 (🔑 소유권 검증, ADMIN 예외)
+- [ ] **T048** `PATCH /api/posts/:id/status` — DRAFT/PUBLISHED 전환 (🔑 소유권 검증)
+- [ ] **T049** `GET /api/posts` — 목록 (페이지네이션, 카테고리/태그/**작성자(authorId)** 필터, 정렬)
 - [ ] **T050** `GET /api/posts/:slug` — 상세 + 조회수 증가 (IP 해시 기반 중복 방지, `PostView` 활용)
-- [ ] **T050-S** 🔐 관리자 API에 XSS 방지용 서버사이드 DOMPurify sanitize 적용
+- [ ] **T050-S** 🔐 게시글 생성/수정 API에 XSS 방지용 서버사이드 DOMPurify sanitize 적용
+- [ ] **T050-S2** 🆕 `GET /api/users/me/posts` — 내가 쓴 글 목록 (마이페이지, DRAFT 포함)
+- [ ] **T050-S3** 🆕 `GET /api/users/:id/posts` — 특정 작성자의 공개(PUBLISHED) 글 목록
+- [ ] **T050-S4** 🆕 `GET /api/admin/posts` — 전체 게시글 목록 (모더레이션용, 🛡️)
+- [ ] **T050-S5** 🆕 `DELETE /api/admin/posts/:id` — 관리자 강제 삭제/비공개 전환 (🛡️, 소유권 무관)
 
 ### 3-2. 이미지 업로드 (Backend)
-- [ ] **T051** Cloudinary 설정 및 `POST /api/admin/posts/upload-image` 구현
+- [ ] **T051** Cloudinary 설정 및 `POST /api/posts/upload-image` 구현 (🔒 로그인 유저 누구나)
 - [ ] **T052** multer 미들웨어 연동 (파일 크기/타입 제한)
 
 ### 3-3. 카테고리/태그 API (Backend)
-- [ ] **T053** `GET /api/categories`, `POST/PATCH/DELETE /api/admin/categories`
-- [ ] **T054** `GET /api/tags`, 태그 생성은 게시글 저장 시 자동 upsert
+- [ ] **T053** `GET /api/categories`, `POST/PATCH/DELETE /api/admin/categories` (카테고리는 계속 관리자 전용)
+- [ ] **T054** `GET /api/tags`, 태그 생성은 게시글 저장 시 자동 upsert (모든 유저 가능)
 
 ### 3-4. 게시글 목록/상세 (Frontend)
-- [ ] **T055** TanStack Query 설정 및 `usePosts`, `usePost` 훅 작성
-- [ ] **T056** 홈(`/`) 페이지 — PostCard 그리드 + 페이지네이션
+- [ ] **T055** TanStack Query 설정 및 `usePosts`, `usePost`, **`useMyPosts`** 훅 작성
+- [ ] **T056** 홈(`/`) 페이지 — PostCard 그리드(작성자 닉네임 표시) + 페이지네이션
 - [ ] **T057** `/category/[slug]`, `/tag/[slug]` 목록 페이지
-- [ ] **T058** `/posts/[slug]` 상세 페이지 (ISR 적용)
+- [ ] **T057-S** 🆕 `/users/[id]` 작성자 공개 프로필 페이지 (해당 유저의 PUBLISHED 글 목록)
+- [ ] **T058** `/posts/[slug]` 상세 페이지 (ISR 적용) — 본인 글일 경우 수정/삭제 버튼 노출
 - [ ] **T059** TipTap 콘텐츠 렌더러 컴포넌트 (`PostContent`) + DOMPurify sanitize
 - [ ] **T060** Shiki 코드 하이라이팅 적용
 - [ ] **T061** 목차(TOC) 자동 생성 (heading 파싱)
 
-### 3-5. 관리자 게시글 작성/수정 (Frontend)
-- [ ] **T062** TipTap `RichTextEditor` 컴포넌트 이식 (onggi-shop 기반 + 코드블록 확장)
-- [ ] **T063** `/admin/posts` 목록 페이지 (검색/필터/상태 배지)
-- [ ] **T064** `/admin/posts/new` 작성 페이지 (제목/슬러그/카테고리/태그/썸네일/본문)
-- [ ] **T065** `/admin/posts/[id]/edit` 수정 페이지
+### 3-5. 게시글 작성/수정 (Frontend) — 🔒 로그인 유저 누구나
+- [ ] **T062** TipTap `RichTextEditor` 컴포넌트 이식 (onggi-shop 기반 + 코드블록 확장), `components/write/`로 위치
+- [ ] **T063** `/my/posts` 마이페이지 목록 (검색/필터/상태 배지, 본인 글만 조회)
+- [ ] **T064** `/posts/new` 작성 페이지 (제목/슬러그/카테고리/태그/썸네일/본문) — 로그인 필요
+- [ ] **T065** `/posts/[id]/edit` 수정 페이지 — 작성자 본인 아니면 403 페이지로 리다이렉트
 - [ ] **T066** 임시저장 로직 (Zustand + localStorage, 30초 간격 자동저장)
-- [ ] **T067** 발행/임시저장/삭제 버튼 및 상태 전환 UI
+- [ ] **T067** 발행/임시저장/삭제 버튼 및 상태 전환 UI (본인 글에만 노출)
+- [ ] **T067-S** 🆕 `/admin/posts` 전체 게시글 모더레이션 페이지 (작성자 표시, 강제 삭제/비공개 액션)
 
 ---
 
@@ -145,18 +167,18 @@
 ### 4-1. 댓글 API (Backend)
 - [ ] **T068** `GET /api/posts/:postId/comments` — 트리 구조 조회 (parentId 재귀)
 - [ ] **T069** `POST /api/posts/:postId/comments` — 작성 (로그인 또는 게스트+간단 비밀번호)
-- [ ] **T070** `DELETE /api/comments/:id` — 본인 또는 관리자 삭제
+- [ ] **T070** `DELETE /api/comments/:id` — 🔑 본인 댓글만 삭제 가능 (ownershipMiddleware 적용, ADMIN 예외)
 - [ ] **T070-S** 🔐 댓글 작성 Rate Limit (스팸 방지, 10회/1분)
 - [ ] **T070-S2** 🔐 댓글 내용 XSS sanitize
 
 ### 4-2. 댓글 UI (Frontend)
-- [ ] **T071** `CommentList`, `CommentItem`(대댓글 포함) 컴포넌트
+- [ ] **T071** `CommentList`, `CommentItem`(대댓글 포함) 컴포넌트 — 본인 댓글에만 삭제 버튼 노출
 - [ ] **T072** `CommentForm` (로그인/게스트 분기)
 - [ ] **T073** 게시글 상세 페이지에 댓글 영역 통합
 
-### 4-3. 관리자 댓글 관리
-- [ ] **T074** `GET /api/admin/comments` — 전체 댓글 목록 API
-- [ ] **T075** `/admin/comments` 페이지 — 스팸/악성 댓글 삭제 UI
+### 4-3. 관리자 댓글 모더레이션
+- [ ] **T074** `GET /api/admin/comments` — 전체 댓글 목록 API (🛡️, 소유권 무관 전체 조회)
+- [ ] **T075** `/admin/comments` 페이지 — 스팸/악성 댓글 강제 삭제 UI
 
 ---
 
@@ -170,10 +192,13 @@
 - [ ] **T078** `POST /api/posts/:postId/like` — 토글 API (쿠키 기반 guestId)
 - [ ] **T079** 게시글 상세에 좋아요 버튼 UI
 
-### 5-3. 관리자 대시보드
-- [ ] **T080** `GET /api/admin/dashboard` — 통계 집계 API (총 게시글/조회수/댓글, 인기글 Top5)
+### 5-3. 관리자 대시보드 & 회원 관리
+- [ ] **T080** `GET /api/admin/dashboard` — 통계 집계 API (총 유저/게시글/조회수/댓글, 인기글 Top5)
 - [ ] **T081** `/admin` 대시보드 페이지 — Recharts 조회수 추이 차트
 - [ ] **T082** 인기글 Top5 / 최근 댓글 위젯
+- [ ] **T082-S** 🆕 `GET /api/admin/users` — 전체 회원 목록 API (🛡️)
+- [ ] **T082-S2** 🆕 `PATCH /api/admin/users/:id/status` — 회원 정지/정지 해제 API (🛡️)
+- [ ] **T082-S3** 🆕 `/admin/users` 페이지 — 회원 목록 + 정지/해제 액션 UI
 
 ---
 
