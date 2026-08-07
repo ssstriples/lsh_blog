@@ -1,0 +1,160 @@
+// backend/prisma/schema.prisma
+// lsh_blog DB 스키마
+// 참고 문서: docs/03_db_schema_erd.md
+//
+// ⚠️ 2차 개정 (2026-08-07): 관리자 단일 작성자 구조 → 모든 회원(User)이
+// Post.authorId가 될 수 있는 멀티 유저 구조로 변경. User.status 필드 추가.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED // 관리자에 의해 정지된 계정 — 로그인/글쓰기/댓글 작성 차단
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model User {
+  id         String     @id @default(cuid())
+  email      String     @unique
+  password   String?
+  name       String
+  role       Role       @default(USER)
+  status     UserStatus @default(ACTIVE)
+  provider   String?
+  providerId String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  posts    Post[] // 이 유저가 작성한 모든 게시글 (본인만 수정/삭제 가능)
+  comments Comment[]
+  likes    PostLike[]
+
+  @@index([email])
+  @@map("users")
+}
+
+model Category {
+  id        String @id @default(cuid())
+  name      String
+  slug      String @unique
+  sortOrder Int    @default(0)
+
+  posts Post[]
+
+  @@map("categories")
+}
+
+model Tag {
+  id   String @id @default(cuid())
+  name String @unique
+  slug String @unique
+
+  posts PostTag[]
+
+  @@map("tags")
+}
+
+model Post {
+  id           String     @id @default(cuid())
+  title        String
+  slug         String     @unique
+  content      String     @db.Text // TipTap HTML (DOMPurify sanitized)
+  thumbnailUrl String?
+  status       PostStatus @default(DRAFT)
+  viewCount    Int        @default(0)
+  authorId     String // 작성자 = 소유자. 이 필드로 Ownership Authorization 수행
+  categoryId   String?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  publishedAt DateTime?
+  deletedAt   DateTime?
+
+  author   User       @relation(fields: [authorId], references: [id])
+  category Category?  @relation(fields: [categoryId], references: [id])
+  tags     PostTag[]
+  comments Comment[]
+  views    PostView[]
+  likes    PostLike[]
+
+  @@index([slug])
+  @@index([status, publishedAt])
+  @@index([authorId]) // "내가 쓴 글" 목록 조회(마이페이지) 최적화
+  @@map("posts")
+}
+
+model PostTag {
+  postId String
+  tagId  String
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag  Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@map("post_tags")
+}
+
+model Comment {
+  id        String  @id @default(cuid())
+  postId    String
+  userId    String? // 댓글 작성자 = 소유자. 이 필드로 Ownership Authorization 수행
+  guestName String? // 비로그인 댓글 허용 시
+  content   String  @db.Text
+  parentId  String? // 대댓글
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  post    Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user    User?     @relation(fields: [userId], references: [id])
+  parent  Comment?  @relation("CommentTree", fields: [parentId], references: [id])
+  replies Comment[] @relation("CommentTree")
+
+  @@index([postId])
+  @@map("comments")
+}
+
+model PostView {
+  id       String   @id @default(cuid())
+  postId   String
+  ipHash   String // IP 해시 (개인정보 보호)
+  viewedAt DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, ipHash]) // 동일 IP 중복 카운트 방지 (일단위 재설계 가능)
+  @@map("post_views")
+}
+
+model PostLike {
+  id      String  @id @default(cuid())
+  postId  String
+  userId  String?
+  guestId String? // 비로그인 좋아요용 쿠키 ID
+
+  createdAt DateTime @default(now())
+
+  post Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+  @@map("post_likes")
+}

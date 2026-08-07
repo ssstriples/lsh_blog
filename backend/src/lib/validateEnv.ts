@@ -3,7 +3,13 @@
  * 하나라도 누락되면 서버를 아예 시작하지 않고 즉시 종료시켜,
  * "배포는 됐는데 런타임에 갑자기 죽는" 상황을 방지합니다.
  */
-const REQUIRED_ENV_VARS = ["PORT", "JWT_ACCESS_SECRET", "JWT_REFRESH_SECRET", "CORS_ORIGIN"] as const;
+const REQUIRED_ENV_VARS = [
+  "PORT",
+  "JWT_ACCESS_SECRET",
+  "JWT_REFRESH_SECRET",
+  "CORS_ORIGIN",
+  "DATABASE_URL",
+] as const;
 
 export function validateEnv(): void {
   const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);

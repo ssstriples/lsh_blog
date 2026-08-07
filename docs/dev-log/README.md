@@ -14,6 +14,8 @@
 | [2026-08-07_phase0-1_dev-environment.md](./2026-08-07_phase0-1_dev-environment.md) | Phase 0-1 | Node/pnpm 버전 확인, VS Code 확장, GitHub 레포, `.gitignore` | 2026-08-07 |
 | [2026-08-07_phase0-2_nextjs-scaffolding.md](./2026-08-07_phase0-2_nextjs-scaffolding.md) | Phase 0-2 | Next.js 16 프로젝트 생성, 폴더 구조, ESLint/Prettier, shadcn/ui, 다크모드 | 2026-08-07 |
 | [2026-08-07_phase0-3_backend-setup.md](./2026-08-07_phase0-3_backend-setup.md) | Phase 0-3 | Express+TypeScript 서버, Helmet/RateLimit/에러핸들러/Winston/CORS 보안 미들웨어 | 2026-08-07 |
+| [2026-08-07_phase0-4_database-setup.md](./2026-08-07_phase0-4_database-setup.md) | Phase 0-4 / Phase 1 | Prisma Postgres 연결, Prisma 7 신규 설정(`prisma.config.ts`), 드라이버 어댑터, 전체 스키마 설계+마이그레이션 | 2026-08-07 |
+| [2026-08-07_phase2_auth-system.md](./2026-08-07_phase2_auth-system.md) | Phase 2 | 회원가입/로그인/토큰 재발급/로그아웃 API, JWT Access+Refresh, bcrypt, Rate Limiting, 인증/인가 미들웨어 | 2026-08-07 |
 
 ## 작성 규칙
 

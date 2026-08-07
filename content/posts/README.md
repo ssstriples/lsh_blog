@@ -37,3 +37,5 @@ summary: "목록 페이지에 보여줄 한 줄 요약"
 |------|------|------|
 | [2026-08-07-build-my-blog-01-dev-environment-nextjs-setup.md](./2026-08-07-build-my-blog-01-dev-environment-nextjs-setup.md) | 기술 블로그를 직접 만들어보자 #1 — 개발 환경부터 Next.js 다크모드까지 | DRAFT |
 | [2026-08-07-build-my-blog-02-express-backend-security-middlewares.md](./2026-08-07-build-my-blog-02-express-backend-security-middlewares.md) | 기술 블로그를 직접 만들어보자 #2 — Express 서버에 보안 미들웨어 5종 세트 붙이기 | DRAFT |
+| [2026-08-07-build-my-blog-03-postgresql-prisma-setup.md](./2026-08-07-build-my-blog-03-postgresql-prisma-setup.md) | 기술 블로그를 직접 만들어보자 #3 — Prisma로 데이터베이스 연결하기 | DRAFT |
+| [2026-08-07-build-my-blog-04-jwt-auth-signup-login.md](./2026-08-07-build-my-blog-04-jwt-auth-signup-login.md) | 기술 블로그를 직접 만들어보자 #4 — 회원가입/로그인 API와 JWT 인증 만들기 | DRAFT |

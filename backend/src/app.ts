@@ -1,10 +1,13 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
+import cookieParser from "cookie-parser";
 
 import { corsOptions } from "@/lib/cors";
+import { prisma } from "@/lib/prisma";
 import { globalRateLimiter } from "@/middlewares/rateLimiter";
 import { errorHandler, notFoundHandler } from "@/middlewares/errorHandler";
+import authRouter from "@/routes/authRoutes";
 
 export function createApp() {
   const app = express();
@@ -22,13 +25,22 @@ export function createApp() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 
-  // 헬스체크 라우트 (배포 환경에서 서버 생존 확인용)
-  app.get("/health", (_req: Request, res: Response) => {
-    res.status(200).json({ success: true, message: "OK" });
+  // 쿠키 파서 — Refresh Token(HttpOnly Cookie) 읽기용
+  app.use(cookieParser());
+
+  // 헬스체크 라우트 (배포 환경에서 서버 생존 확인용, DB 연결도 함께 확인)
+  app.get("/health", async (_req: Request, res: Response) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      res.status(200).json({ success: true, message: "OK", db: "connected" });
+    } catch {
+      res.status(503).json({ success: false, message: "DB 연결 실패", db: "disconnected" });
+    }
   });
 
+  app.use("/api/auth", authRouter);
+
   // TODO: 이후 Phase에서 아래에 실제 라우트를 추가합니다.
-  // app.use("/api/auth", authRouter);
   // app.use("/api/posts", postRouter);
 
   // 404 핸들러 (등록된 라우트가 없을 때)

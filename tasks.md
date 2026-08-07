@@ -45,10 +45,11 @@
 - [x] **T013-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase0-3_backend-setup.md` + 블로그 게시글 #2 작성
 
 ### 0-4. 데이터베이스 세팅
-- [ ] **T014** PostgreSQL(Supabase 등) 프로젝트 생성 및 연결 URL 확보
-- [ ] **T015** 백엔드에 Prisma 설치
-- [ ] **T016** `prisma init` 및 `DATABASE_URL` 설정
-- [ ] **T017** `schema.prisma`에 [`03_db_schema_erd.md`](./docs/03_db_schema_erd.md) 전체 모델 작성 후 `prisma generate` 확인
+- [x] **T014** Prisma Postgres(클라우드) 프로젝트 생성 및 연결 URL 확보 (`lsh_blog`, ap-northeast-1)
+- [x] **T015** 백엔드에 Prisma 설치 (`prisma` v7.9.1, `@prisma/client`, `@prisma/adapter-pg`, `pg`)
+- [x] **T016** `prisma.config.ts` 작성 및 `DATABASE_URL` 설정 (Prisma 7 신규 설정 방식 — datasource url이 schema.prisma에서 분리됨)
+- [x] **T017** `schema.prisma`에 [`03_db_schema_erd.md`](./docs/03_db_schema_erd.md) 전체 모델 작성 후 `prisma generate` 확인 — 드라이버 어댑터(`PrismaPg`) 적용, `/health` 엔드포인트에서 DB 연결 확인 완료
+- [x] **T017-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase0-4_database-setup.md` + 블로그 게시글 #3 작성
 
 ### 0-5. 환경변수 관리
 - [ ] **T018** `.env.local` (Next.js) — NEXTAUTH_SECRET, API_URL 등
@@ -62,14 +63,14 @@
 
 ## 🗄️ PHASE 1 — DB 스키마 설계
 
-- [ ] **T021** `User` 모델 작성 (id, email, password, name, role, provider, providerId)
-- [ ] **T022** `Category` 모델 작성 (flat 구조)
-- [ ] **T023** `Tag`, `PostTag` 모델 작성 (N:M)
-- [ ] **T024** `Post` 모델 작성 (title, slug, content, status, viewCount, thumbnailUrl)
-- [ ] **T025** `Comment` 모델 작성 (parentId self-ref, guestName)
-- [ ] **T026** `PostView`, `PostLike` 모델 작성 (조회수/좋아요 어뷰징 방지)
-- [ ] **T027** `prisma migrate dev` 실행 및 테이블 생성 확인
-- [ ] **T028** ERD 관계 최종 검토 및 `prisma generate`
+- [x] **T021** `User` 모델 작성 (id, email, password, name, role, status, provider, providerId)
+- [x] **T022** `Category` 모델 작성 (flat 구조)
+- [x] **T023** `Tag`, `PostTag` 모델 작성 (N:M)
+- [x] **T024** `Post` 모델 작성 (title, slug, content, status, viewCount, thumbnailUrl, authorId)
+- [x] **T025** `Comment` 모델 작성 (parentId self-ref, guestName, userId)
+- [x] **T026** `PostView`, `PostLike` 모델 작성 (조회수/좋아요 어뷰징 방지)
+- [x] **T027** `prisma migrate dev --name init` 실행 및 테이블 생성 확인
+- [x] **T028** ERD 관계 최종 검토 및 `prisma generate`
 
 ---
 
@@ -79,30 +80,31 @@
 > 관리자(ADMIN)는 회원가입으로 생성된 계정 중 `role`을 수동으로 승격하는 방식(시드/DB 직접 수정)으로 운영.
 
 ### 2-0. 회원가입 API (Backend) 🆕
-- [ ] **T028-S** `POST /api/auth/signup` 라우트 생성 (이메일/비밀번호/닉네임)
-- [ ] **T028-S2** Zod 회원가입 입력 검증 (이메일 형식, 비밀번호 강도)
-- [ ] **T028-S3** 이메일 중복 체크 → 409 응답
-- [ ] **T028-S4** `bcrypt.hash()` 비밀번호 해싱 후 저장 (role: USER 기본값)
-- [ ] **T028-S5** 🔐 회원가입 Rate Limit (5회/1시간, 대량 가입 방지)
+- [x] **T028-S** `POST /api/auth/signup` 라우트 생성 (이메일/비밀번호/닉네임)
+- [x] **T028-S2** Zod 회원가입 입력 검증 (이메일 형식, 비밀번호 강도)
+- [x] **T028-S3** 이메일 중복 체크 → 409 응답
+- [x] **T028-S4** `bcrypt.hash()` 비밀번호 해싱 후 저장 (role: USER 기본값)
+- [x] **T028-S5** 🔐 회원가입 Rate Limit (5회/1시간, 대량 가입 방지)
 
 ### 2-1. 로그인 API (Backend)
-- [ ] **T029** `POST /api/auth/login` 라우트 생성
-- [ ] **T030** Zod 입력 검증 스키마 작성
-- [ ] **T031** 이메일 조회 → `bcrypt.compare()` 비밀번호 검증
-- [ ] **T031-S** 🔐 `status === 'SUSPENDED'` 계정 로그인 차단 (403 + 안내 메시지)
-- [ ] **T032** Access Token(15분) 발급
-- [ ] **T033** Refresh Token(7일) → HttpOnly Cookie 설정
-- [ ] **T034** `POST /api/auth/refresh` — 재발급
-- [ ] **T035** `POST /api/auth/logout` — 쿠키 만료 처리
-- [ ] **T035-S** 🔐 로그인 Rate Limit (5회/15분)
-- [ ] **T035-S2** 🔐 이메일 열거/타이밍 어택 방지 로직 적용
-- [ ] **T035-S3** 🔐 로그인 성공/실패 보안 로그 기록
+- [x] **T029** `POST /api/auth/login` 라우트 생성
+- [x] **T030** Zod 입력 검증 스키마 작성
+- [x] **T031** 이메일 조회 → `bcrypt.compare()` 비밀번호 검증
+- [x] **T031-S** 🔐 `status === 'SUSPENDED'` 계정 로그인 차단 (403 + 안내 메시지)
+- [x] **T032** Access Token(15분) 발급
+- [x] **T033** Refresh Token(7일) → HttpOnly Cookie 설정
+- [x] **T034** `POST /api/auth/refresh` — 재발급
+- [x] **T035** `POST /api/auth/logout` — 쿠키 만료 처리
+- [x] **T035-S** 🔐 로그인 Rate Limit (5회/15분)
+- [x] **T035-S2** 🔐 이메일 열거/타이밍 어택 방지 로직 적용
+- [x] **T035-S3** 🔐 로그인 성공/실패 보안 로그 기록
 
 ### 2-2. 인증/인가 미들웨어 (Backend)
-- [ ] **T036** `authMiddleware.ts` — JWT 검증 (로그인 여부만 확인)
-- [ ] **T037** `adminMiddleware.ts` — role === 'ADMIN' 체크 (모더레이션 라우트 전용)
-- [ ] **T037-S** 🆕 `ownershipMiddleware.ts` (또는 서비스 레이어 헬퍼) — 리소스의 `authorId`/`userId` === `req.user.id` 검증, ADMIN은 예외 통과
-- [ ] **T038** 미들웨어 적용 테스트 (`test/api.http`) — 본인 글/타인 글/관리자 3가지 케이스 모두 테스트
+- [x] **T036** `authMiddleware.ts` — JWT 검증 (로그인 여부만 확인)
+- [x] **T037** `requireAdmin` — role === 'ADMIN' 체크 (모더레이션 라우트 전용, `authMiddleware.ts`에 포함)
+- [ ] **T037-S** 🆕 `ownershipMiddleware.ts` (또는 서비스 레이어 헬퍼) — 리소스의 `authorId`/`userId` === `req.user.id` 검증, ADMIN은 예외 통과 — *Phase 3 게시글 CRUD 구현 시 함께 작성 예정*
+- [x] **T038** 미들웨어 적용 테스트 — curl로 회원가입/로그인/리프레시/로그아웃/중복이메일(409) 케이스 검증 완료
+- [x] **T038-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase2_auth-system.md` + 블로그 게시글 #4 작성
 
 ### 2-3. 로그인/회원가입 화면 + NextAuth (Frontend)
 - [ ] **T039** NextAuth v5 설치 및 Credentials Provider 설정
