@@ -14,12 +14,14 @@
 | [04_api_endpoints.md](./04_api_endpoints.md) | API 엔드포인트 목록 | ✅ 작성 |
 | [05_ai_writing_pipeline.md](./05_ai_writing_pipeline.md) | AI 명세서 작성 자동화 파이프라인 | ✅ 작성 |
 | [06_pages_wireframe.md](./06_pages_wireframe.md) | 페이지 와이어프레임 | ✅ 작성 |
+| [dev-log/README.md](./dev-log/README.md) | 태스크별 상세 개발 이력 로그 | 🟡 진행 중 |
+| [../content/posts/README.md](../content/posts/README.md) | 블로그 발행용 게시글 원고 (Markdown) | 🟡 진행 중 |
 
 ## 진행 현황
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
-| Phase 0 | 프로젝트 초기 세팅 | 🔲 예정 |
+| Phase 0 | 프로젝트 초기 세팅 | � 진행 중 (0-1, 0-2 완료) |
 | Phase 1 | DB 스키마 설계 | 🔲 예정 |
 | Phase 2 | 인증 시스템 | 🔲 예정 |
 | Phase 3 | 게시글 CRUD | 🔲 예정 |

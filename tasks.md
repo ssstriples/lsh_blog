@@ -15,18 +15,22 @@
 ## 📦 PHASE 0 — 프로젝트 초기 세팅
 
 ### 0-1. 개발 환경 구성
-- [ ] **T001** Node.js / pnpm 버전 확인 (onggi-shop과 동일 버전 사용)
-- [ ] **T002** VS Code 익스텐션 확인 (ESLint, Prettier, Prisma, Tailwind CSS IntelliSense)
-- [ ] **T003** GitHub 레포지토리 생성 (`lsh_blog` 또는 별도 레포)
-- [ ] **T004** `.gitignore` 작성 (node_modules, .env, .next)
+- [x] **T001** Node.js / pnpm 버전 확인 (Node v22.20.0 / npm 10.9.3 / pnpm 10.33.0)
+- [x] **T002** VS Code 익스텐션 확인 (ESLint, Prettier, Prisma, Tailwind CSS IntelliSense) — 모두 설치됨, `.vscode/extensions.json`에 권장 확장 등록
+- [x] **T003** GitHub 레포지토리 생성 (`lsh_blog`) — `origin: ssstriples/lsh_blog` 연결 확인
+- [x] **T004** `.gitignore` 작성 (node_modules, .env, .next)
 
 ### 0-2. 프론트엔드 스캐폴딩
-- [ ] **T005** `pnpm create next-app` — Next.js (TypeScript + App Router + Tailwind)
-- [ ] **T006** `src/` 디렉토리 구조 생성 (app / components / lib / hooks / types / store)
-- [ ] **T007** ESLint + Prettier 설정
-- [ ] **T008** `shadcn/ui` 초기화
-- [ ] **T009** 공통 컴포넌트 설치 (Button, Input, Card, Dialog, Badge, Toast)
-- [ ] **T009-S** `next-themes` 설치 및 다크모드 ThemeToggle 컴포넌트 구현
+- [x] **T005** `pnpm create next-app` — Next.js (TypeScript + App Router + Tailwind) — `frontend/` 생성, Next.js 16 / React 19
+- [x] **T006** `src/` 디렉토리 구조 생성 (app / components / lib / hooks / types / store)
+- [x] **T007** ESLint + Prettier 설정 — `eslint-config-prettier`, `prettier-plugin-tailwindcss` 적용
+- [x] **T008** `shadcn/ui` 초기화
+- [x] **T009** 공통 컴포넌트 설치 (Button, Input, Card, Dialog, Badge, Toast→sonner)
+- [x] **T009-S** `next-themes` 설치 및 다크모드 ThemeToggle 컴포넌트 구현
+- [x] **T009-D** 📄 개발 이력 문서화 — `docs/dev-log/`에 Phase 0-1/0-2 상세 로그 작성 + `content/posts/`에 초보자용 블로그 게시글 초안 작성
+
+> 📝 **문서화 규칙**: 이후 모든 Phase/기능 구현 완료 시, `docs/dev-log/YYYY-MM-DD_phaseX-Y_주제.md`에 상세 개발 로그를,
+> 기능 단위(로그인, 게시글 CRUD 등) 완료 시 `content/posts/`에 초보자 친화적 블로그 원고를 함께 작성한다.
 
 ### 0-3. 백엔드 초기 세팅
 - [ ] **T010** `backend/` Express 프로젝트 생성
