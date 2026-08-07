@@ -7,11 +7,13 @@
 | 파일 | 내용 | 상태 |
 |------|------|------|
 | [../요구사항명세.md](../요구사항명세.md) | 전체 진행 방향 및 요약 | ✅ 작성 |
-| [01_requirements_draft.md](./01_requirements_draft.md) | AI 생성 개략 요구조건 명세서 | 🔲 예정 |
-| [02_tech_spec_detail.md](./02_tech_spec_detail.md) | AI 생성 상세 기술 명세서 | 🔲 예정 |
-| [03_db_schema_erd.md](./03_db_schema_erd.md) | DB ERD (User/Post/Category/Tag/Comment) | 🔲 예정 |
-| [04_api_endpoints.md](./04_api_endpoints.md) | API 엔드포인트 목록 | 🔲 예정 |
-| [05_ai_writing_pipeline.md](./05_ai_writing_pipeline.md) | AI 명세서 작성 자동화 파이프라인 | 🔲 예정 |
+| [../tasks.md](../tasks.md) | 전체 구현 태스크 목록 (Phase 0~8) | ✅ 작성 |
+| [01_requirements_draft.md](./01_requirements_draft.md) | 개략 요구조건 명세서 (초안) | ✅ 작성 |
+| [02_tech_spec_detail.md](./02_tech_spec_detail.md) | 상세 기술 명세서 (초안) | ✅ 작성 |
+| [03_db_schema_erd.md](./03_db_schema_erd.md) | DB ERD (User/Post/Category/Tag/Comment) | ✅ 작성 |
+| [04_api_endpoints.md](./04_api_endpoints.md) | API 엔드포인트 목록 | ✅ 작성 |
+| [05_ai_writing_pipeline.md](./05_ai_writing_pipeline.md) | AI 명세서 작성 자동화 파이프라인 | ✅ 작성 |
+| [06_pages_wireframe.md](./06_pages_wireframe.md) | 페이지 와이어프레임 | ✅ 작성 |
 
 ## 진행 현황
 
