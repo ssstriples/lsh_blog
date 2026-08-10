@@ -9,6 +9,9 @@ const REQUIRED_ENV_VARS = [
   "JWT_REFRESH_SECRET",
   "CORS_ORIGIN",
   "DATABASE_URL",
+  "CLOUDINARY_CLOUD_NAME",
+  "CLOUDINARY_API_KEY",
+  "CLOUDINARY_API_SECRET",
 ] as const;
 
 export function validateEnv(): void {

@@ -19,6 +19,7 @@ import {
 } from "@/services/postService";
 import { getClientIp } from "@/lib/ip";
 import { prisma } from "@/lib/prisma";
+import { uploadImageBuffer } from "@/services/uploadService";
 
 function parseOrThrow<T>(schema: { safeParse: (v: unknown) => { success: boolean; data?: T; error?: any } }, value: unknown): T {
   const parsed = schema.safeParse(value);
@@ -153,6 +154,19 @@ export async function adminListAllPosts(req: Request, res: Response, next: NextF
       success: true,
       data: { posts, pagination: { page, limit, totalCount, totalPages: Math.ceil(totalCount / limit) } },
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** POST /api/posts/upload-image — 에디터 이미지 업로드 (로그인 유저 누구나, Cloudinary) */
+export async function uploadPostImage(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.file) {
+      throw new AppError("업로드할 이미지 파일이 없습니다.", 400);
+    }
+    const url = await uploadImageBuffer(req.file.buffer);
+    res.status(201).json({ success: true, data: { url } });
   } catch (err) {
     next(err);
   }

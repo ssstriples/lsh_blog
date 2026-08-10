@@ -138,8 +138,8 @@
 - [x] **T050-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-10_phase3_post-crud-ownership.md` + 블로그 게시글 #5 작성
 
 ### 3-2. 이미지 업로드 (Backend)
-- [ ] **T051** Cloudinary 설정 및 `POST /api/posts/upload-image` 구현 (🔒 로그인 유저 누구나)
-- [ ] **T052** multer 미들웨어 연동 (파일 크기/타입 제한)
+- [x] **T051** Cloudinary 설정 및 `POST /api/posts/upload-image` 구현 (🔒 로그인 유저 누구나) — `lib/cloudinary.ts`, `services/uploadService.ts`(upload_stream으로 디스크에 파일 남기지 않음), 서버 시작 시 `CLOUDINARY_*` 환경변수 검증 추가
+- [x] **T052** multer 미들웨어 연동 (파일 크기/타입 제한) — `middlewares/uploadMiddleware.ts`: 메모리 스토리지, 5MB 제한, jpeg/png/webp/gif만 허용, MulterError를 AppError로 변환하여 전역 에러 핸들러와 통합
 
 ### 3-3. 카테고리/태그 API (Backend)
 - [ ] **T053** `GET /api/categories`, `POST/PATCH/DELETE /api/admin/categories` (카테고리는 계속 관리자 전용)
