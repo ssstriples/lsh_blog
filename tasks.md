@@ -52,12 +52,12 @@
 - [x] **T017-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase0-4_database-setup.md` + 블로그 게시글 #3 작성
 
 ### 0-5. 환경변수 관리
-- [ ] **T018** `.env.local` (Next.js) — NEXTAUTH_SECRET, API_URL 등
-- [ ] **T019** `.env` (Backend) — DATABASE_URL, JWT_SECRET, PORT(4100) 등
-- [ ] **T020** `.env.example` 작성
-- [ ] **T020-S** 🔐 `.gitignore`에 `.env*`, `*.pem` 추가 확인
-- [ ] **T020-S2** 🔐 JWT_ACCESS_SECRET / JWT_REFRESH_SECRET 랜덤 생성 (서로 다른 값)
-- [ ] **T020-S3** 🔐 서버 시작 시 필수 환경변수 런타임 검증
+- [x] **T018** `.env.local` (Next.js) — `NEXT_PUBLIC_API_URL` 등록 (NEXTAUTH_SECRET/URL은 Phase 2-3 NextAuth 도입 시 `.env.example`에 주석으로 안내, 실사용 시점에 추가)
+- [x] **T019** `.env` (Backend) — DATABASE_URL, JWT_ACCESS/REFRESH_SECRET, PORT(4100), CORS_ORIGIN, LOG_LEVEL 등 모두 설정 완료
+- [x] **T020** `.env.example` 작성 — `frontend/.env.example`, `backend/.env.example` 모두 작성
+- [x] **T020-S** 🔐 `.gitignore`에 `.env*`, `*.pem` 추가 확인 — `frontend/.gitignore`가 `.env*`를 전부 무시해 `.env.example`까지 가려지던 문제 발견, `!.env.example` 예외 규칙 추가로 수정
+- [x] **T020-S2** 🔐 JWT_ACCESS_SECRET / JWT_REFRESH_SECRET 랜덤 생성 (서로 다른 값, 각 96자리 hex)
+- [x] **T020-S3** 🔐 서버 시작 시 필수 환경변수 런타임 검증 (`validateEnv.ts`, `DATABASE_URL` 포함 5개 항목 확인)
 
 ---
 
