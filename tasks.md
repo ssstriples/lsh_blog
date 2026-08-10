@@ -107,13 +107,14 @@
 - [x] **T038-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase2_auth-system.md` + 블로그 게시글 #4 작성
 
 ### 2-3. 로그인/회원가입 화면 + NextAuth (Frontend)
-- [ ] **T039** NextAuth v5 설치 및 Credentials Provider 설정
-- [ ] **T040** `/login` 페이지 생성 (모든 유저 대상)
-- [ ] **T040-S** 🆕 `/signup` 페이지 생성 (이메일/비밀번호/닉네임 입력 폼)
-- [ ] **T041** 로그인 성공 시 이전 페이지(또는 홈)로 리다이렉트, 실패 시 에러 표시
-- [ ] **T042** 헤더에 로그인 상태에 따른 "글쓰기 ✏️" 버튼 및 "마이페이지/로그아웃" 메뉴 노출
-- [ ] **T043** 로그아웃 처리
-- [ ] **T044** `/my/*` 경로 미들웨어 접근 제어 (비로그인 → `/login` 리다이렉트), `/admin/*`는 비관리자 → 403
+- [x] **T039** NextAuth v5 설치 및 Credentials Provider 설정 (`frontend/src/lib/auth.ts` — authorize()가 백엔드 `/api/auth/login` 호출, jwt/session 콜백에서 accessToken 자동 갱신)
+- [x] **T040** `/login` 페이지 생성 (모든 유저 대상) (`frontend/src/app/login/page.tsx`)
+- [x] **T040-S** 🆕 `/signup` 페이지 생성 (이메일/비밀번호/닉네임 입력 폼) (`frontend/src/app/signup/page.tsx` — 가입 후 자동 로그인)
+- [x] **T041** 로그인 성공 시 이전 페이지(또는 홈)로 리다이렉트, 실패 시 에러 표시 (callbackUrl 지원, 백엔드 에러 메시지 그대로 노출)
+- [x] **T042** 헤더에 로그인 상태에 따른 "글쓰기 ✏️" 버튼 및 "마이페이지/로그아웃" 메뉴 노출 (`frontend/src/components/layout/header.tsx`)
+- [x] **T043** 로그아웃 처리 (헤더 드롭다운에서 `signOut({ callbackUrl: "/" })`)
+- [x] **T044** `/my/*` 경로 미들웨어 접근 제어 (비로그인 → `/login` 리다이렉트), `/admin/*`는 비관리자 → 403 (`frontend/src/proxy.ts` — Next.js 16 미들웨어 파일 컨벤션이 `proxy.ts`로 변경됨에 따라 리네임)
+  - curl 기반 기능 테스트 완료: 회원가입 → NextAuth 로그인(세션 쿠키 발급) → `/api/auth/session` 확인 → `/my/*` 비로그인 시 `/login?callbackUrl=` 리다이렉트 → `/admin` 비관리자 접근 시 `/403` 리다이렉트 → 로그아웃 후 세션 클리어, 모두 정상 동작 확인
 
 ---
 

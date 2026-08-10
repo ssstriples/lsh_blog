@@ -48,7 +48,14 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 
     res.status(200).json({
       success: true,
-      data: { user: result.user, accessToken: result.accessToken },
+      // ⚠️ refreshToken을 JSON 바디에도 함께 반환하는 이유:
+      // 프론트엔드(Next.js)의 NextAuth는 서버 사이드(authorize())에서 이 API를 호출하는데,
+      // 이 경우 응답의 Set-Cookie는 브라우저가 아닌 Next.js 서버가 받기 때문에
+      // 브라우저 → 백엔드로 직접 쿠키가 전달되지 않는다. 대신 NextAuth가 자체적으로
+      // 암호화된 HttpOnly 세션(JWT)에 refreshToken을 안전하게 보관하고, 토큰 갱신 시점에
+      // 서버(Route Handler)에서 Cookie 헤더로 되돌려 보내는 방식으로 사용한다.
+      // (직접 fetch로 백엔드를 호출하는 클라이언트는 기존처럼 HttpOnly 쿠키만 사용하면 된다.)
+      data: { user: result.user, accessToken: result.accessToken, refreshToken: result.refreshToken },
     });
   } catch (err) {
     next(err);
