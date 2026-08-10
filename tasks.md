@@ -102,7 +102,7 @@
 ### 2-2. 인증/인가 미들웨어 (Backend)
 - [x] **T036** `authMiddleware.ts` — JWT 검증 (로그인 여부만 확인)
 - [x] **T037** `requireAdmin` — role === 'ADMIN' 체크 (모더레이션 라우트 전용, `authMiddleware.ts`에 포함)
-- [ ] **T037-S** 🆕 `ownershipMiddleware.ts` (또는 서비스 레이어 헬퍼) — 리소스의 `authorId`/`userId` === `req.user.id` 검증, ADMIN은 예외 통과 — *Phase 3 게시글 CRUD 구현 시 함께 작성 예정*
+- [x] **T037-S** 🆕 `ownershipMiddleware.ts` — 리소스의 `authorId`/`userId` === `req.user.id` 검증, ADMIN은 예외 통과 (팩토리 함수 `requireOwnership(getOwnerId)`로 구현, 게시글 CRUD에 적용)
 - [x] **T038** 미들웨어 적용 테스트 — curl로 회원가입/로그인/리프레시/로그아웃/중복이메일(409) 케이스 검증 완료
 - [x] **T038-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-07_phase2_auth-system.md` + 블로그 게시글 #4 작성
 
@@ -123,17 +123,18 @@
 > `/api/admin/posts`는 이제 "모더레이션(강제 삭제/비공개)" 전용 별도 라우트로 유지.
 
 ### 3-1. 게시글 CRUD API (Backend)
-- [ ] **T045** `POST /api/posts` — 생성 (slug 자동 생성 로직 포함, `authorId`는 `req.user.id`로 서버에서 강제 설정)
-- [ ] **T046** `PATCH /api/posts/:id` — 수정 (🔑 `ownershipMiddleware` 적용: 본인 글만, ADMIN 예외)
-- [ ] **T047** `DELETE /api/posts/:id` — 소프트 삭제 (🔑 소유권 검증, ADMIN 예외)
-- [ ] **T048** `PATCH /api/posts/:id/status` — DRAFT/PUBLISHED 전환 (🔑 소유권 검증)
-- [ ] **T049** `GET /api/posts` — 목록 (페이지네이션, 카테고리/태그/**작성자(authorId)** 필터, 정렬)
-- [ ] **T050** `GET /api/posts/:slug` — 상세 + 조회수 증가 (IP 해시 기반 중복 방지, `PostView` 활용)
-- [ ] **T050-S** 🔐 게시글 생성/수정 API에 XSS 방지용 서버사이드 DOMPurify sanitize 적용
-- [ ] **T050-S2** 🆕 `GET /api/users/me/posts` — 내가 쓴 글 목록 (마이페이지, DRAFT 포함)
-- [ ] **T050-S3** 🆕 `GET /api/users/:id/posts` — 특정 작성자의 공개(PUBLISHED) 글 목록
-- [ ] **T050-S4** 🆕 `GET /api/admin/posts` — 전체 게시글 목록 (모더레이션용, 🛡️)
-- [ ] **T050-S5** 🆕 `DELETE /api/admin/posts/:id` — 관리자 강제 삭제/비공개 전환 (🛡️, 소유권 무관)
+- [x] **T045** `POST /api/posts` — 생성 (slug 자동 생성 로직 포함, `authorId`는 `req.user.id`로 서버에서 강제 설정)
+- [x] **T046** `PATCH /api/posts/:id` — 수정 (🔑 `ownershipMiddleware` 적용: 본인 글만, ADMIN 예외)
+- [x] **T047** `DELETE /api/posts/:id` — 소프트 삭제 (🔑 소유권 검증, ADMIN 예외)
+- [x] **T048** `PATCH /api/posts/:id/status` — DRAFT/PUBLISHED 전환 (🔑 소유권 검증)
+- [x] **T049** `GET /api/posts` — 목록 (페이지네이션, 카테고리/태그/**작성자(authorId)** 필터, 정렬)
+- [x] **T050** `GET /api/posts/:slug` — 상세 + 조회수 증가 (IP 해시 기반 중복 방지, `PostView` 활용)
+- [x] **T050-S** 🔐 게시글 생성/수정 API에 XSS 방지용 서버사이드 DOMPurify sanitize 적용 (`isomorphic-dompurify`)
+- [x] **T050-S2** 🆕 `GET /api/users/me/posts` — 내가 쓴 글 목록 (마이페이지, DRAFT 포함)
+- [x] **T050-S3** 🆕 `GET /api/users/:id/posts` — 특정 작성자의 공개(PUBLISHED) 글 목록
+- [x] **T050-S4** 🆕 `GET /api/admin/posts` — 전체 게시글 목록 (모더레이션용, 🛡️)
+- [x] **T050-S5** 🆕 `DELETE /api/admin/posts/:id` — 관리자 강제 삭제/비공개 전환 (🛡️, 소유권 무관)
+- [x] **T050-D** 📄 개발 이력 문서화 — `docs/dev-log/2026-08-10_phase3_post-crud-ownership.md` + 블로그 게시글 #5 작성
 
 ### 3-2. 이미지 업로드 (Backend)
 - [ ] **T051** Cloudinary 설정 및 `POST /api/posts/upload-image` 구현 (🔒 로그인 유저 누구나)
@@ -141,7 +142,7 @@
 
 ### 3-3. 카테고리/태그 API (Backend)
 - [ ] **T053** `GET /api/categories`, `POST/PATCH/DELETE /api/admin/categories` (카테고리는 계속 관리자 전용)
-- [ ] **T054** `GET /api/tags`, 태그 생성은 게시글 저장 시 자동 upsert (모든 유저 가능)
+- [x] **T054** `GET /api/tags`, 태그 생성은 게시글 저장 시 자동 upsert (모든 유저 가능) — upsert 로직은 `postService.ts`에 구현 완료, `GET /api/tags` 목록 라우트는 카테고리 작업(T053)과 함께 추가 예정
 
 ### 3-4. 게시글 목록/상세 (Frontend)
 - [ ] **T055** TanStack Query 설정 및 `usePosts`, `usePost`, **`useMyPosts`** 훅 작성

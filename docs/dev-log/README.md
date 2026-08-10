@@ -16,6 +16,7 @@
 | [2026-08-07_phase0-3_backend-setup.md](./2026-08-07_phase0-3_backend-setup.md) | Phase 0-3 | Express+TypeScript 서버, Helmet/RateLimit/에러핸들러/Winston/CORS 보안 미들웨어 | 2026-08-07 |
 | [2026-08-07_phase0-4_database-setup.md](./2026-08-07_phase0-4_database-setup.md) | Phase 0-4 / Phase 1 | Prisma Postgres 연결, Prisma 7 신규 설정(`prisma.config.ts`), 드라이버 어댑터, 전체 스키마 설계+마이그레이션 | 2026-08-07 |
 | [2026-08-07_phase2_auth-system.md](./2026-08-07_phase2_auth-system.md) | Phase 2 | 회원가입/로그인/토큰 재발급/로그아웃 API, JWT Access+Refresh, bcrypt, Rate Limiting, 인증/인가 미들웨어 | 2026-08-07 |
+| [2026-08-10_phase3_post-crud-ownership.md](./2026-08-10_phase3_post-crud-ownership.md) | Phase 3 | 게시글 CRUD API, 소유권 검증 미들웨어(`requireOwnership`), slug 자동 생성, DOMPurify XSS 방지, 마이페이지/공개 프로필/관리자 모더레이션 라우트 | 2026-08-10 |
 
 ## 작성 규칙
 

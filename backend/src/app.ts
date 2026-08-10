@@ -8,6 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { globalRateLimiter } from "@/middlewares/rateLimiter";
 import { errorHandler, notFoundHandler } from "@/middlewares/errorHandler";
 import authRouter from "@/routes/authRoutes";
+import postRouter from "@/routes/postRoutes";
+import userRouter from "@/routes/userRoutes";
+import adminRouter from "@/routes/adminRoutes";
 
 export function createApp() {
   const app = express();
@@ -39,9 +42,9 @@ export function createApp() {
   });
 
   app.use("/api/auth", authRouter);
-
-  // TODO: 이후 Phase에서 아래에 실제 라우트를 추가합니다.
-  // app.use("/api/posts", postRouter);
+  app.use("/api/posts", postRouter);
+  app.use("/api/users", userRouter);
+  app.use("/api/admin", adminRouter);
 
   // 404 핸들러 (등록된 라우트가 없을 때)
   app.use(notFoundHandler);
