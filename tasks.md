@@ -142,8 +142,9 @@
 - [x] **T052** multer 미들웨어 연동 (파일 크기/타입 제한) — `middlewares/uploadMiddleware.ts`: 메모리 스토리지, 5MB 제한, jpeg/png/webp/gif만 허용, MulterError를 AppError로 변환하여 전역 에러 핸들러와 통합
 
 ### 3-3. 카테고리/태그 API (Backend)
-- [ ] **T053** `GET /api/categories`, `POST/PATCH/DELETE /api/admin/categories` (카테고리는 계속 관리자 전용)
-- [x] **T054** `GET /api/tags`, 태그 생성은 게시글 저장 시 자동 upsert (모든 유저 가능) — upsert 로직은 `postService.ts`에 구현 완료, `GET /api/tags` 목록 라우트는 카테고리 작업(T053)과 함께 추가 예정
+- [x] **T053** `GET /api/categories`, `POST/PATCH/DELETE /api/admin/categories` (카테고리는 계속 관리자 전용) — `categorySchema.ts`/`categoryService.ts`/`categoryController.ts`/`categoryRoutes.ts` 신규 작성, `adminRoutes.ts`에 관리자 CRUD 등록. 한글 카테고리명 slug 생성 시 `slugify` strict 모드가 비-라틴 문자를 전부 제거해 빈 슬러그가 되는 버그를 발견해 fallback 로직 추가로 수정
+- [x] **T054** `GET /api/tags`, 태그 생성은 게시글 저장 시 자동 upsert (모든 유저 가능) — upsert 로직은 `postService.ts`에 이미 구현되어 있었고, 이번에 `GET /api/tags` 목록 라우트(게시글 수 많은 순 정렬) 추가 완료
+  - 기능 테스트 완료(Node fetch 기반, 터미널 한글 인코딩 문제 우회): 카테고리 생성(한글명 slug 정상 생성 확인)/수정/삭제, 비로그인 생성 시도 401 차단, `GET /api/categories`·`GET /api/tags` 공개 조회 모두 정상 동작 확인
 
 ### 3-4. 게시글 목록/상세 (Frontend)
 - [ ] **T055** TanStack Query 설정 및 `usePosts`, `usePost`, **`useMyPosts`** 훅 작성

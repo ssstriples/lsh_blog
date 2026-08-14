@@ -19,6 +19,7 @@
 | [2026-08-07_phase2_auth-system.md](./2026-08-07_phase2_auth-system.md) | Phase 2 | 회원가입/로그인/토큰 재발급/로그아웃 API, JWT Access+Refresh, bcrypt, Rate Limiting, 인증/인가 미들웨어 | 2026-08-07 |
 | [2026-08-10_phase3_post-crud-ownership.md](./2026-08-10_phase3_post-crud-ownership.md) | Phase 3 | 게시글 CRUD API, 소유권 검증 미들웨어(`requireOwnership`), slug 자동 생성, DOMPurify XSS 방지, 마이페이지/공개 프로필/관리자 모더레이션 라우트 | 2026-08-10 |
 | [2026-08-10_phase2-3_frontend-auth-nextauth.md](./2026-08-10_phase2-3_frontend-auth-nextauth.md) | Phase 2-3 | NextAuth v5 Credentials Provider로 백엔드 JWT 로그인 연결, refreshToken JSON 응답 워크어라운드, accessToken 자동 갱신, `/login`·`/signup` 화면, 헤더 로그인 상태, `/my/*`·`/admin/*` 라우트 보호(`middleware.ts`→`proxy.ts` 리네임) | 2026-08-10 |
+| [2026-08-14_phase3-3_categories-tags-api.md](./2026-08-14_phase3-3_categories-tags-api.md) | Phase 3-3 | 카테고리 CRUD API(관리자 전용)/조회 API(공개), 태그 조회 API, `slugify` strict 모드가 한글을 전부 제거해 빈 슬러그가 되는 버그 수정, 터미널 인코딩 문제 우회 테스트 | 2026-08-14 |
 | [2026-08-10_phase3-2_image-upload-cloudinary.md](./2026-08-10_phase3-2_image-upload-cloudinary.md) | Phase 3-2 | Cloudinary 이미지 업로드 API, multer memoryStorage + 5MB/타입 제한, MulterError→AppError 변환, `CLOUDINARY_*` 필수 환경변수 검증 추가 | 2026-08-10 |
 
 ## 작성 규칙

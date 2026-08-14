@@ -41,4 +41,5 @@ summary: "목록 페이지에 보여줄 한 줄 요약"
 | [2026-08-07-build-my-blog-04-jwt-auth-signup-login.md](./2026-08-07-build-my-blog-04-jwt-auth-signup-login.md) | 기술 블로그를 직접 만들어보자 #4 — 회원가입/로그인 API와 JWT 인증 만들기 | DRAFT |
 | [2026-08-10-build-my-blog-05-post-crud-ownership-authorization.md](./2026-08-10-build-my-blog-05-post-crud-ownership-authorization.md) | 기술 블로그를 직접 만들어보자 #5 — 내 글은 나만 수정할 수 있게, 소유권 검증 만들기 | DRAFT |
 | [2026-08-10-build-my-blog-06-frontend-auth-nextauth.md](./2026-08-10-build-my-blog-06-frontend-auth-nextauth.md) | 기술 블로그를 직접 만들어보자 #6 — NextAuth로 로그인 화면 붙이기 | DRAFT |
+| [2026-08-14-build-my-blog-07-categories-tags-korean-slug-bug.md](./2026-08-14-build-my-blog-07-categories-tags-korean-slug-bug.md) | 기술 블로그를 직접 만들어보자 #7 — 카테고리/태그 API와 '한글 슬러그가 사라지는' 버그 | DRAFT |
 | [2026-08-10-build-my-blog-07-image-upload-cloudinary-multer.md](./2026-08-10-build-my-blog-07-image-upload-cloudinary-multer.md) | 기술 블로그를 직접 만들어보자 #7 — 에디터에 이미지 올리기, Cloudinary와 multer | DRAFT |
