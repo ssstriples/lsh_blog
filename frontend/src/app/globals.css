@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -127,4 +128,20 @@
   html {
     @apply font-sans;
   }
+}
+
+/* Shiki 듀얼 테마(라이트/다크) 코드 블록 — codeToHtml({ defaultColor: false })가 생성하는 CSS 변수를 사용 */
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
+}
+.dark .shiki,
+.dark .shiki span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
+}
+.shiki {
+  @apply rounded-lg p-4 text-sm;
+  overflow-x: auto;
 }

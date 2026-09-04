@@ -21,6 +21,7 @@
 | [2026-08-10_phase2-3_frontend-auth-nextauth.md](./2026-08-10_phase2-3_frontend-auth-nextauth.md) | Phase 2-3 | NextAuth v5 Credentials Provider로 백엔드 JWT 로그인 연결, refreshToken JSON 응답 워크어라운드, accessToken 자동 갱신, `/login`·`/signup` 화면, 헤더 로그인 상태, `/my/*`·`/admin/*` 라우트 보호(`middleware.ts`→`proxy.ts` 리네임) | 2026-08-10 |
 | [2026-08-14_phase3-3_categories-tags-api.md](./2026-08-14_phase3-3_categories-tags-api.md) | Phase 3-3 | 카테고리 CRUD API(관리자 전용)/조회 API(공개), 태그 조회 API, `slugify` strict 모드가 한글을 전부 제거해 빈 슬러그가 되는 버그 수정, 터미널 인코딩 문제 우회 테스트 | 2026-08-14 |
 | [2026-08-10_phase3-2_image-upload-cloudinary.md](./2026-08-10_phase3-2_image-upload-cloudinary.md) | Phase 3-2 | Cloudinary 이미지 업로드 API, multer memoryStorage + 5MB/타입 제한, MulterError→AppError 변환, `CLOUDINARY_*` 필수 환경변수 검증 추가 | 2026-08-10 |
+| [2026-09-04_phase3-4_post-list-detail-frontend.md](./2026-09-04_phase3-4_post-list-detail-frontend.md) | Phase 3-4 | TanStack Query 목록 페이지(홈/카테고리/태그/작성자), `PostGrid` 공통화, 상세 페이지는 ISR(Server Component)로 구현, DOMPurify 재sanitize + Shiki 듀얼테마 하이라이팅 + 한글 보존 TOC 자동생성 파이프라인 | 2026-09-04 |
 
 ## 작성 규칙
 

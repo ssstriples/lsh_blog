@@ -147,14 +147,15 @@
   - 기능 테스트 완료(Node fetch 기반, 터미널 한글 인코딩 문제 우회): 카테고리 생성(한글명 slug 정상 생성 확인)/수정/삭제, 비로그인 생성 시도 401 차단, `GET /api/categories`·`GET /api/tags` 공개 조회 모두 정상 동작 확인
 
 ### 3-4. 게시글 목록/상세 (Frontend)
-- [ ] **T055** TanStack Query 설정 및 `usePosts`, `usePost`, **`useMyPosts`** 훅 작성
-- [ ] **T056** 홈(`/`) 페이지 — PostCard 그리드(작성자 닉네임 표시) + 페이지네이션
-- [ ] **T057** `/category/[slug]`, `/tag/[slug]` 목록 페이지
-- [ ] **T057-S** 🆕 `/users/[id]` 작성자 공개 프로필 페이지 (해당 유저의 PUBLISHED 글 목록)
-- [ ] **T058** `/posts/[slug]` 상세 페이지 (ISR 적용) — 본인 글일 경우 수정/삭제 버튼 노출
-- [ ] **T059** TipTap 콘텐츠 렌더러 컴포넌트 (`PostContent`) + DOMPurify sanitize
-- [ ] **T060** Shiki 코드 하이라이팅 적용
-- [ ] **T061** 목차(TOC) 자동 생성 (heading 파싱)
+- [x] **T055** TanStack Query 설정 및 `usePosts`, `usePost`, **`useMyPosts`** 훅 작성 — `@tanstack/react-query` 설치, `components/layout/providers.tsx`에 `QueryClientProvider` 추가, `hooks/usePosts.ts`(`GET /api/posts`)·`hooks/usePost.ts`(`GET /api/posts/:slug`)·`hooks/useMyPosts.ts`(`GET /api/users/me/posts`, `useSession` accessToken 사용) 구현
+- [x] **T056** 홈(`/`) 페이지 — PostCard 그리드(작성자 닉네임 표시) + 페이지네이션 — `app/page.tsx`(서버 컴포넌트, `PageProps<"/">`로 `searchParams.page` 파싱) → `components/post/PostGrid.tsx`(클라이언트, `usePosts` 훅으로 조회) → `components/post/PostCard.tsx`, `components/common/Pagination.tsx` 구현. Cloudinary 썸네일 표시를 위해 `next.config.ts`에 `images.remotePatterns` 추가
+- [x] **T057** `/category/[slug]`, `/tag/[slug]` 목록 페이지 — `PostGrid`를 `category`/`tag` 필터 + `basePath`를 받도록 확장, `CategoryPostList`/`TagPostList`(각각 `useCategories`/`useTags`로 이름 표시) + `app/category/[slug]/page.tsx`, `app/tag/[slug]/page.tsx` 구현
+- [x] **T057-S** 🆕 `/users/[id]` 작성자 공개 프로필 페이지 (해당 유저의 PUBLISHED 글 목록) — 별도 회원 정보 API가 없어 `GET /api/posts?authorId=`(=`GET /api/users/:id/posts`와 동일 로직)로 목록의 첫 글에서 닉네임을 추출해 헤딩에 표시, `UserPostList` + `app/users/[id]/page.tsx` 구현
+- [x] **T058** `/posts/[slug]` 상세 페이지 (ISR 적용) — 본인 글일 경우 수정/삭제 버튼 노출 — `app/posts/[slug]/page.tsx`를 서버 컴포넌트로 구현, `export const revalidate = 60`으로 ISR 적용(`apiFetch`에 `next: { revalidate }` 전달), 존재하지 않는 slug는 `notFound()`. `PostOwnerActions`(클라이언트, `useSession`으로 본인/ADMIN 여부 판단)로 수정/삭제 버튼 노출, 삭제는 `useMutation` + `window.confirm`
+- [x] **T059** TipTap 콘텐츠 렌더러 컴포넌트 (`PostContent`) + DOMPurify sanitize — `lib/renderPostContent.ts`에서 백엔드와 동일한 DOMPurify 허용목록으로 재sanitize(2중 방어) 후 `PostContent.tsx`가 `dangerouslySetInnerHTML`로 렌더링. Tailwind Typography(`@tailwindcss/typography`) 플러그인으로 `prose` 스타일 적용
+- [x] **T060** Shiki 코드 하이라이팅 적용 — `renderPostContent.ts`가 `<pre><code class="language-x">` 블록을 정규식으로 찾아 Shiki `codeToHtml`(라이트/다크 듀얼 테마, `defaultColor: false`)로 치환, `globals.css`에 `--shiki-light`/`--shiki-dark` CSS 변수 기반 다크모드 스타일 추가
+- [x] **T061** 목차(TOC) 자동 생성 (heading 파싱) — `renderPostContent.ts`가 정규식으로 h1~h6을 찾아 한글 보존 slug id를 부여하고 `TocItem[]`을 함께 추출, `PostToc.tsx`가 sticky 사이드바로 렌더링
+- [x] **3-4 문서화** 📄 `docs/dev-log/2026-09-04_phase3-4_post-list-detail-frontend.md` + `content/posts/2026-09-04-build-my-blog-08-post-list-detail-frontend.md` 작성 (아래 참고)
 
 ### 3-5. 게시글 작성/수정 (Frontend) — 🔒 로그인 유저 누구나
 - [ ] **T062** TipTap `RichTextEditor` 컴포넌트 이식 (onggi-shop 기반 + 코드블록 확장), `components/write/`로 위치
