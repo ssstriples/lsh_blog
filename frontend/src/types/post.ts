@@ -55,6 +55,41 @@ export interface TocItem {
   level: number;
 }
 
+/** POST /api/posts, PATCH /api/posts/:id 요청 바디 — authorId는 서버가 채우므로 절대 넣지 않는다. */
+export interface PostInput {
+  title: string;
+  content: string;
+  slug?: string;
+  categoryId: string | null;
+  tags: string[];
+  thumbnailUrl: string | null;
+  status: PostStatus;
+}
+
+/** 마이페이지/관리자 목록 쿼리 (DRAFT 포함이라 상태 필터가 있다) */
+export interface ManagePostsParams {
+  page?: number;
+  limit?: number;
+  q?: string;
+  status?: PostStatus;
+}
+
+/** GET /api/admin/posts 목록 항목 — 모더레이션용이라 작성자 이메일까지 포함 */
+export interface AdminPostSummary {
+  id: string;
+  title: string;
+  slug: string;
+  status: PostStatus;
+  viewCount: number;
+  createdAt: string;
+  author: PostAuthorSummary & { email: string };
+}
+
+export interface AdminPostListData {
+  posts: AdminPostSummary[];
+  pagination: Pagination;
+}
+
 export interface ListPostsParams {
   page?: number;
   limit?: number;

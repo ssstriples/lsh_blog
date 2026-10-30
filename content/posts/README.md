@@ -44,3 +44,4 @@ summary: "목록 페이지에 보여줄 한 줄 요약"
 | [2026-08-14-build-my-blog-07-categories-tags-korean-slug-bug.md](./2026-08-14-build-my-blog-07-categories-tags-korean-slug-bug.md) | 기술 블로그를 직접 만들어보자 #7 — 카테고리/태그 API와 '한글 슬러그가 사라지는' 버그 | DRAFT |
 | [2026-08-10-build-my-blog-07-image-upload-cloudinary-multer.md](./2026-08-10-build-my-blog-07-image-upload-cloudinary-multer.md) | 기술 블로그를 직접 만들어보자 #7 — 에디터에 이미지 올리기, Cloudinary와 multer | DRAFT |
 | [2026-09-04-build-my-blog-08-post-list-detail-frontend.md](./2026-09-04-build-my-blog-08-post-list-detail-frontend.md) | 기술 블로그를 직접 만들어보자 #8 — 목록은 실시간으로, 상세는 ISR로 | DRAFT |
+| [2026-10-31-build-my-blog-09-tiptap-editor-autosave.md](./2026-10-31-build-my-blog-09-tiptap-editor-autosave.md) | 기술 블로그를 직접 만들어보자 #9 — TipTap 에디터와 '날아가지 않는' 글쓰기 화면 | DRAFT |

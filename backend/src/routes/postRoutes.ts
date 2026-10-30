@@ -6,6 +6,7 @@ import {
   remove,
   list,
   detail,
+  detailById,
   uploadPostImage,
 } from "@/controllers/postController";
 import { requireAuth } from "@/middlewares/authMiddleware";
@@ -28,6 +29,8 @@ router.post("/", requireAuth, create);
 router.post("/upload-image", requireAuth, uploadImageMiddleware, uploadPostImage);
 
 // 🔑 로그인 + 소유권 검증 (본인 글만, ADMIN 예외)
+// 수정 화면 진입용 조회 — DRAFT도 내려주므로 반드시 소유권 검증 뒤에 둔다
+router.get("/:id/edit", requireAuth, ownershipCheck, detailById);
 router.patch("/:id", requireAuth, ownershipCheck, update);
 router.patch("/:id/status", requireAuth, ownershipCheck, updateStatus);
 router.delete("/:id", requireAuth, ownershipCheck, remove);

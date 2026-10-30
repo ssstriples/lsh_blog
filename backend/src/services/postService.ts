@@ -4,7 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { AppError } from "@/middlewares/errorHandler";
 import { generateUniqueSlug } from "@/lib/slug";
 import { hashIp } from "@/lib/ip";
-import type { CreatePostInput, UpdatePostInput, ListPostsQuery } from "@/schemas/postSchema";
+import type {
+  CreatePostInput,
+  UpdatePostInput,
+  ListPostsQuery,
+  ManagePostsQuery,
+} from "@/schemas/postSchema";
 
 const POST_LIST_SELECT = {
   id: true,
@@ -191,11 +196,16 @@ export async function listPosts(query: ListPostsQuery) {
   };
 }
 
-/** 마이페이지 — 본인 글 전체 (DRAFT 포함) */
-export async function listMyPosts(authorId: string, query: ListPostsQuery) {
-  const { page, limit } = query;
+/** 마이페이지 — 본인 글 전체 (DRAFT 포함, 제목 검색/상태 필터) */
+export async function listMyPosts(authorId: string, query: ManagePostsQuery) {
+  const { page, limit, q, status } = query;
 
-  const where: Prisma.PostWhereInput = { authorId, deletedAt: null };
+  const where: Prisma.PostWhereInput = {
+    authorId,
+    deletedAt: null,
+    ...(status ? { status } : {}),
+    ...(q ? { title: { contains: q, mode: "insensitive" } } : {}),
+  };
 
   const [posts, totalCount] = await Promise.all([
     prisma.post.findMany({
@@ -204,6 +214,48 @@ export async function listMyPosts(authorId: string, query: ListPostsQuery) {
       skip: (page - 1) * limit,
       take: limit,
       select: POST_LIST_SELECT,
+    }),
+    prisma.post.count({ where }),
+  ]);
+
+  return {
+    posts,
+    pagination: { page, limit, totalCount, totalPages: Math.ceil(totalCount / limit) },
+  };
+}
+
+/** 관리자 모더레이션 — 전체 게시글 (작성자 무관, DRAFT 포함, 삭제된 글 제외) */
+export async function listAllPostsForAdmin(query: ManagePostsQuery) {
+  const { page, limit, q, status } = query;
+
+  const where: Prisma.PostWhereInput = {
+    deletedAt: null,
+    ...(status ? { status } : {}),
+    ...(q
+      ? {
+          OR: [
+            { title: { contains: q, mode: "insensitive" } },
+            { author: { name: { contains: q, mode: "insensitive" } } },
+          ],
+        }
+      : {}),
+  };
+
+  const [posts, totalCount] = await Promise.all([
+    prisma.post.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        status: true,
+        viewCount: true,
+        createdAt: true,
+        author: { select: { id: true, name: true, email: true } },
+      },
     }),
     prisma.post.count({ where }),
   ]);

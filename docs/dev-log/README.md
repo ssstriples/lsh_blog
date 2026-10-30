@@ -22,6 +22,7 @@
 | [2026-08-14_phase3-3_categories-tags-api.md](./2026-08-14_phase3-3_categories-tags-api.md) | Phase 3-3 | 카테고리 CRUD API(관리자 전용)/조회 API(공개), 태그 조회 API, `slugify` strict 모드가 한글을 전부 제거해 빈 슬러그가 되는 버그 수정, 터미널 인코딩 문제 우회 테스트 | 2026-08-14 |
 | [2026-08-10_phase3-2_image-upload-cloudinary.md](./2026-08-10_phase3-2_image-upload-cloudinary.md) | Phase 3-2 | Cloudinary 이미지 업로드 API, multer memoryStorage + 5MB/타입 제한, MulterError→AppError 변환, `CLOUDINARY_*` 필수 환경변수 검증 추가 | 2026-08-10 |
 | [2026-09-04_phase3-4_post-list-detail-frontend.md](./2026-09-04_phase3-4_post-list-detail-frontend.md) | Phase 3-4 | TanStack Query 목록 페이지(홈/카테고리/태그/작성자), `PostGrid` 공통화, 상세 페이지는 ISR(Server Component)로 구현, DOMPurify 재sanitize + Shiki 듀얼테마 하이라이팅 + 한글 보존 TOC 자동생성 파이프라인 | 2026-09-04 |
+| [2026-10-31_phase3-5_post-editor-frontend.md](./2026-10-31_phase3-5_post-editor-frontend.md) | Phase 3-5 | TipTap v3 에디터(lowlight 코드블록/표/이미지), `/posts/new`·`/posts/[id]/edit`(서버에서 소유권 403 처리, 신규 `GET /api/posts/:id/edit`), Zustand localStorage 30초 자동저장, 발행/임시저장/삭제 UI + ISR 즉시 재검증(Server Action), `/my/posts`·`/admin/posts` 필터 목록, Zod 4 `.partial()`+`.default()`로 발행글이 비공개로 바뀌던 버그 수정 | 2026-10-31 |
 
 ## 작성 규칙
 

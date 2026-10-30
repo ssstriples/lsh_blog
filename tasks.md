@@ -158,13 +158,15 @@
 - [x] **3-4 문서화** 📄 `docs/dev-log/2026-09-04_phase3-4_post-list-detail-frontend.md` + `content/posts/2026-09-04-build-my-blog-08-post-list-detail-frontend.md` 작성 (아래 참고)
 
 ### 3-5. 게시글 작성/수정 (Frontend) — 🔒 로그인 유저 누구나
-- [ ] **T062** TipTap `RichTextEditor` 컴포넌트 이식 (onggi-shop 기반 + 코드블록 확장), `components/write/`로 위치
-- [ ] **T063** `/my/posts` 마이페이지 목록 (검색/필터/상태 배지, 본인 글만 조회)
-- [ ] **T064** `/posts/new` 작성 페이지 (제목/슬러그/카테고리/태그/썸네일/본문) — 로그인 필요
-- [ ] **T065** `/posts/[id]/edit` 수정 페이지 — 작성자 본인 아니면 403 페이지로 리다이렉트
-- [ ] **T066** 임시저장 로직 (Zustand + localStorage, 30초 간격 자동저장)
-- [ ] **T067** 발행/임시저장/삭제 버튼 및 상태 전환 UI (본인 글에만 노출)
-- [ ] **T067-S** 🆕 `/admin/posts` 전체 게시글 모더레이션 페이지 (작성자 표시, 강제 삭제/비공개 액션)
+- [x] **T062** TipTap `RichTextEditor` 컴포넌트 이식 (onggi-shop 기반 + 코드블록 확장), `components/write/`로 위치 — onggi-shop 소스가 로컬에 없어 TipTap v3로 새로 작성: `components/write/RichTextEditor.tsx`(StarterKit + CodeBlockLowlight + Image + TextAlign + TableKit + Placeholder, `immediatelyRender: false`) + `EditorToolbar.tsx`(`useEditorState`로 활성 상태만 구독, 코드블록 언어 선택·표 편집 보조 툴바, 본문 이미지 업로드), 에디터 스타일은 `globals.css`
+- [x] **T063** `/my/posts` 마이페이지 목록 (검색/필터/상태 배지, 본인 글만 조회) — `app/my/posts/page.tsx` + `components/post/MyPostList.tsx`(발행/비공개 토글·수정·삭제), 검색/상태 필터는 URL 쿼리로 관리(`common/PostFilterBar.tsx`, `Pagination`에 `query` 유지 옵션 추가). 백엔드 `GET /api/users/me/posts`에 `q`(제목)·`status` 필터 추가(`managePostsQuerySchema`)
+- [x] **T064** `/posts/new` 작성 페이지 (제목/슬러그/카테고리/태그/썸네일/본문) — 로그인 필요 — `app/posts/new/page.tsx` + 공용 폼 `components/write/PostEditor.tsx`(`TagInput`·`ThumbnailUploader` 포함, `lib/uploadImage.ts`로 Cloudinary 업로드), `proxy.ts` matcher에 `/posts/new`, `/posts/:id/edit` 추가
+- [x] **T065** `/posts/[id]/edit` 수정 페이지 — 작성자 본인 아니면 403 페이지로 리다이렉트 — Next.js가 같은 위치의 동적 세그먼트 이름 불일치를 허용하지 않아 `app/posts/[slug]/edit/page.tsx`에 위치(값은 게시글 id). 서버 컴포넌트에서 `auth()` 토큰으로 신규 `GET /api/posts/:id/edit`(🔑 `requireOwnership`, DRAFT 포함) 호출 → 401 로그인 / 403 `/403` / 404 `notFound()`
+- [x] **T066** 임시저장 로직 (Zustand + localStorage, 30초 간격 자동저장) — `store/draftStore.ts`(`persist` + `skipHydration`, 키 `userId:postId|new`), `PostEditor`가 30초마다 변경분만 저장하고 재진입 시 "불러오기/버리기" 배너 표시, 서버 저장 성공 시 로컬 원고 삭제
+- [x] **T067** 발행/임시저장/삭제 버튼 및 상태 전환 UI (본인 글에만 노출) — `PostEditor` 하단 고정 바(임시저장/발행하기, 발행글은 비공개로 저장/수정 내용 발행 + 삭제), `PostStatusBadge`, `hooks/usePostMutations.ts`(저장·상태전환·삭제 후 TanStack Query 무효화 + Server Action `lib/actions/revalidatePost.ts`로 ISR 상세 페이지 즉시 재검증). 🐛 Zod 4에서 `.partial()`이 `.default("DRAFT")`를 유지해 제목만 수정해도 발행글이 비공개로 바뀌던 백엔드 버그 수정(`updatePostSchema`)
+- [x] **T067-S** 🆕 `/admin/posts` 전체 게시글 모더레이션 페이지 (작성자 표시, 강제 삭제/비공개 액션) — `app/admin/posts/page.tsx` + `components/admin/AdminPostList.tsx`(작성자 이름/이메일, 비공개 전환은 `PATCH /api/posts/:id/status` 재사용, 강제삭제는 `DELETE /api/admin/posts/:id`). 백엔드 `GET /api/admin/posts` 쿼리를 Zod 검증 + `q`(제목/작성자명)·`status` 필터로 개선하고 로직을 `postService.listAllPostsForAdmin`으로 이동
+  - 기능 테스트 완료(Node fetch 스크립트): API 17건(제목만 PATCH 시 PUBLISHED 유지, `/:id/edit` 본인 200·타인 403·비로그인 401·없는 id 404, DRAFT 공개 상세 404, 마이페이지 q/status 필터, 잘못된 status 400, 일반 유저 admin 목록 403 등) + NextAuth 세션 쿠키 기반 화면 9건(비로그인 `/posts/new`·`/posts/:id/edit` → `/login`, 타인 수정 화면 → `/403`, 일반 유저 `/admin/posts` → `/403` 등) 모두 통과, `next build` 성공. ⚠️ 브라우저 상호작용(에디터 입력·30초 자동저장·이미지 업로드·Server Action 재검증)은 브라우저 테스트 도구가 없어 수동 확인 필요
+- [x] **3-5 문서화** 📄 `docs/dev-log/2026-10-31_phase3-5_post-editor-frontend.md` + `content/posts/2026-10-31-build-my-blog-09-tiptap-editor-autosave.md` 작성
 
 ---
 

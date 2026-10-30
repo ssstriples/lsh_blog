@@ -20,8 +20,14 @@ export const createPostSchema = z.object({
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 
-/** 게시글 수정 입력 검증 — 모든 필드 선택적 (부분 업데이트) */
-export const updatePostSchema = createPostSchema.partial();
+/**
+ * 게시글 수정 입력 검증 — 모든 필드 선택적 (부분 업데이트)
+ * ⚠️ Zod 4에서는 `.partial()`을 해도 `.default()`가 살아남아, status를 안 보내면 "DRAFT"로
+ * 채워진다 (= 제목만 고쳐도 발행글이 비공개로 바뀜). 그래서 status는 default 없이 다시 정의한다.
+ */
+export const updatePostSchema = createPostSchema
+  .extend({ status: z.enum(["DRAFT", "PUBLISHED"]) })
+  .partial();
 
 export type UpdatePostInput = z.infer<typeof updatePostSchema>;
 
@@ -43,3 +49,13 @@ export const listPostsQuerySchema = z.object({
 });
 
 export type ListPostsQuery = z.infer<typeof listPostsQuerySchema>;
+
+/** 마이페이지/관리자 목록 쿼리 — 공개 목록과 달리 DRAFT도 보이므로 상태 필터를 받는다. */
+export const managePostsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(50).optional().default(20),
+  q: z.string().trim().optional(),
+  status: z.enum(["DRAFT", "PUBLISHED"]).optional(),
+});
+
+export type ManagePostsQuery = z.infer<typeof managePostsQuerySchema>;

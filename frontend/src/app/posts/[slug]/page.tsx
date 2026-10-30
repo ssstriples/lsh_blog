@@ -8,19 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { PostContent } from "@/components/post/PostContent";
 import { PostToc } from "@/components/post/PostToc";
 import { PostOwnerActions } from "@/components/post/PostOwnerActions";
+import { formatDate } from "@/lib/formatDate";
 import type { PostDetail } from "@/types/post";
 
 // ISR — 60초마다 재검증, 그 사이엔 캐시된 정적 페이지를 제공한다.
 export const revalidate = 60;
-
-function formatDate(value: string | null): string {
-  if (!value) return "";
-  return new Date(value).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
 
 async function getPost(slug: string): Promise<PostDetail | null> {
   try {
@@ -43,8 +35,8 @@ export default async function PostDetailPage(props: PageProps<"/posts/[slug]">) 
       <header className="flex flex-col gap-3 border-b pb-6">
         <h1 className="text-3xl font-semibold tracking-tight">{post.title}</h1>
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link href={`/users/${post.author.id}`} className="font-medium hover:text-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
+            <Link href={`/users/${post.author.id}`} className="hover:text-foreground font-medium">
               {post.author.name}
             </Link>
             {post.publishedAt && (
@@ -59,7 +51,7 @@ export default async function PostDetailPage(props: PageProps<"/posts/[slug]">) 
               {post.viewCount}
             </span>
           </div>
-          <PostOwnerActions postId={post.id} authorId={post.author.id} />
+          <PostOwnerActions postId={post.id} slug={post.slug} authorId={post.author.id} />
         </div>
       </header>
 

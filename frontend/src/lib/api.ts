@@ -17,6 +17,7 @@ export class ApiError extends Error {
 /**
  * 백엔드 API 공용 fetch 헬퍼.
  * - accessToken이 있으면 Authorization 헤더에 자동으로 실어 보낸다.
+ * - body가 FormData면 Content-Type을 비워둔다 (브라우저가 multipart boundary를 직접 채워야 함).
  * - 응답이 실패(success: false)면 ApiError를 throw한다 (호출부에서 try/catch로 처리).
  */
 export async function apiFetch<T>(
@@ -24,11 +25,12 @@ export async function apiFetch<T>(
   options: RequestInit & { accessToken?: string } = {},
 ): Promise<T> {
   const { accessToken, headers, ...rest } = options;
+  const isFormData = typeof FormData !== "undefined" && rest.body instanceof FormData;
 
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...rest,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...headers,
     },

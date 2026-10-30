@@ -145,3 +145,97 @@
   @apply rounded-lg p-4 text-sm;
   overflow-x: auto;
 }
+
+/* ── TipTap 에디터 (components/write/RichTextEditor.tsx) ─────────────────── */
+/* Placeholder 확장 — 빈 문서의 첫 문단에 data-placeholder 문구를 표시 */
+.tiptap-editor p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  color: var(--muted-foreground);
+}
+.tiptap-editor img {
+  @apply rounded-lg;
+}
+.tiptap-editor img.ProseMirror-selectednode {
+  outline: 2px solid var(--ring);
+}
+.tiptap-editor table td,
+.tiptap-editor table th {
+  @apply border-border border px-2 py-1;
+  position: relative;
+  min-width: 4rem;
+}
+.tiptap-editor table .selectedCell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: color-mix(in oklch, var(--ring) 20%, transparent);
+}
+.tiptap-editor pre {
+  @apply bg-muted text-foreground rounded-lg p-4 text-sm;
+}
+.tiptap-editor pre code {
+  @apply bg-transparent p-0;
+}
+
+/* lowlight(highlight.js) 토큰 색상 — 에디터 안 미리보기용. 발행된 글은 Shiki가 다시 칠한다. */
+.tiptap-editor .hljs-comment,
+.tiptap-editor .hljs-quote {
+  color: #6a737d;
+  font-style: italic;
+}
+.tiptap-editor .hljs-keyword,
+.tiptap-editor .hljs-selector-tag,
+.tiptap-editor .hljs-literal {
+  color: #d73a49;
+}
+.tiptap-editor .hljs-string,
+.tiptap-editor .hljs-regexp,
+.tiptap-editor .hljs-addition {
+  color: #032f62;
+}
+.tiptap-editor .hljs-number,
+.tiptap-editor .hljs-attr,
+.tiptap-editor .hljs-variable,
+.tiptap-editor .hljs-built_in {
+  color: #005cc5;
+}
+.tiptap-editor .hljs-title,
+.tiptap-editor .hljs-section,
+.tiptap-editor .hljs-name {
+  color: #6f42c1;
+}
+.tiptap-editor .hljs-deletion {
+  color: #b31d28;
+}
+.dark .tiptap-editor .hljs-comment,
+.dark .tiptap-editor .hljs-quote {
+  color: #8b949e;
+}
+.dark .tiptap-editor .hljs-keyword,
+.dark .tiptap-editor .hljs-selector-tag,
+.dark .tiptap-editor .hljs-literal {
+  color: #ff7b72;
+}
+.dark .tiptap-editor .hljs-string,
+.dark .tiptap-editor .hljs-regexp,
+.dark .tiptap-editor .hljs-addition {
+  color: #a5d6ff;
+}
+.dark .tiptap-editor .hljs-number,
+.dark .tiptap-editor .hljs-attr,
+.dark .tiptap-editor .hljs-variable,
+.dark .tiptap-editor .hljs-built_in {
+  color: #79c0ff;
+}
+.dark .tiptap-editor .hljs-title,
+.dark .tiptap-editor .hljs-section,
+.dark .tiptap-editor .hljs-name {
+  color: #d2a8ff;
+}
+.dark .tiptap-editor .hljs-deletion {
+  color: #ffa198;
+}

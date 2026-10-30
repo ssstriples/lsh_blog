@@ -5,6 +5,7 @@ import {
   updatePostSchema,
   updatePostStatusSchema,
   listPostsQuerySchema,
+  managePostsQuerySchema,
 } from "@/schemas/postSchema";
 import {
   createPost,
@@ -13,12 +14,12 @@ import {
   softDeletePost,
   listPosts,
   listMyPosts,
+  listAllPostsForAdmin,
   listPostsByAuthor,
   getPostBySlug,
   getPostById,
 } from "@/services/postService";
 import { getClientIp } from "@/lib/ip";
-import { prisma } from "@/lib/prisma";
 import { uploadImageBuffer } from "@/services/uploadService";
 
 function parseOrThrow<T>(schema: { safeParse: (v: unknown) => { success: boolean; data?: T; error?: any } }, value: unknown): T {
@@ -94,6 +95,7 @@ export async function detail(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+/** GET /api/posts/:id/edit — 수정 화면 진입용 (DRAFT 포함, 조회수 증가 없음, 소유권 검증 후에만 도달) */
 export async function detailById(req: Request, res: Response, next: NextFunction) {
   try {
     const post = await getPostById(paramId(req.params.id));
@@ -103,10 +105,10 @@ export async function detailById(req: Request, res: Response, next: NextFunction
   }
 }
 
-/** GET /api/users/me/posts — 마이페이지 (본인 글, DRAFT 포함) */
+/** GET /api/users/me/posts — 마이페이지 (본인 글, DRAFT 포함, q/status 필터) */
 export async function myPosts(req: Request, res: Response, next: NextFunction) {
   try {
-    const query = parseOrThrow(listPostsQuerySchema, req.query);
+    const query = parseOrThrow(managePostsQuerySchema, req.query);
     const result = await listMyPosts(req.user!.id, query);
     res.status(200).json({ success: true, data: result });
   } catch (err) {
@@ -125,35 +127,12 @@ export async function postsByAuthor(req: Request, res: Response, next: NextFunct
   }
 }
 
-/** GET /api/admin/posts — 전체 게시글 (모더레이션용, DRAFT 포함, 삭제된 글 제외) */
+/** GET /api/admin/posts — 전체 게시글 (모더레이션용, DRAFT 포함, 삭제된 글 제외, q=제목/작성자명 검색) */
 export async function adminListAllPosts(req: Request, res: Response, next: NextFunction) {
   try {
-    const page = Number(req.query.page ?? 1);
-    const limit = Math.min(Number(req.query.limit ?? 20), 50);
-
-    const [posts, totalCount] = await Promise.all([
-      prisma.post.findMany({
-        where: { deletedAt: null },
-        orderBy: { createdAt: "desc" },
-        skip: (page - 1) * limit,
-        take: limit,
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          status: true,
-          viewCount: true,
-          createdAt: true,
-          author: { select: { id: true, name: true, email: true } },
-        },
-      }),
-      prisma.post.count({ where: { deletedAt: null } }),
-    ]);
-
-    res.status(200).json({
-      success: true,
-      data: { posts, pagination: { page, limit, totalCount, totalPages: Math.ceil(totalCount / limit) } },
-    });
+    const query = parseOrThrow(managePostsQuerySchema, req.query);
+    const result = await listAllPostsForAdmin(query);
+    res.status(200).json({ success: true, data: result });
   } catch (err) {
     next(err);
   }

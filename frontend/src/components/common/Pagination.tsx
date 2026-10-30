@@ -9,13 +9,23 @@ interface PaginationProps {
   totalPages: number;
   /** 페이지 링크를 만들 basePath (예: "/", "/category/tech") */
   basePath: string;
+  /** 페이지 이동 시 유지할 다른 쿼리 (예: 검색어/상태 필터) */
+  query?: Record<string, string | undefined>;
 }
 
-export function Pagination({ page, totalPages, basePath }: PaginationProps) {
+export function Pagination({
+  page,
+  totalPages,
+  basePath,
+  query: extraQuery = {},
+}: PaginationProps) {
   if (totalPages <= 1) return null;
 
   const hrefFor = (target: number) => {
     const search = new URLSearchParams();
+    Object.entries(extraQuery).forEach(([key, value]) => {
+      if (value) search.set(key, value);
+    });
     if (target > 1) search.set("page", String(target));
     const query = search.toString();
     return query ? `${basePath}?${query}` : basePath;

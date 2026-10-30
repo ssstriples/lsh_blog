@@ -3,16 +3,8 @@ import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatDate } from "@/lib/formatDate";
 import type { PostSummary } from "@/types/post";
-
-function formatDate(value: string | null): string {
-  if (!value) return "";
-  return new Date(value).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-}
 
 export function PostCard({ post }: { post: PostSummary }) {
   return (
@@ -33,7 +25,7 @@ export function PostCard({ post }: { post: PostSummary }) {
           <CardTitle className="line-clamp-2 text-lg">{post.title}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex items-center gap-2 text-sm">
             <span>{post.author.name}</span>
             {post.publishedAt && (
               <>

@@ -30,7 +30,7 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 | GET | `/api/users/me` | 🔒 | 내 프로필 조회 |
 | PATCH | `/api/users/me` | 🔒 | 내 프로필 수정 (닉네임 등) |
 | DELETE | `/api/users/me` | 🔒 | 회원 탈퇴 (소프트 삭제) |
-| GET | `/api/users/me/posts` | 🔒 | **내가 쓴 글 목록 (마이페이지)** |
+| GET | `/api/users/me/posts` | 🔒 | **내가 쓴 글 목록 (마이페이지)** — DRAFT 포함, `page`, `limit`, `q`(제목), `status`(DRAFT/PUBLISHED) |
 | GET | `/api/users/:id` | 🔓 | 작성자 공개 프로필 (닉네임, 작성 글 수 등) |
 | GET | `/api/users/:id/posts` | 🔓 | **특정 작성자의 공개(PUBLISHED) 게시글 목록** |
 
@@ -58,6 +58,7 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 |---|---|---|---|
 | GET | `/api/posts` | 🔓 | 목록 (page, limit, category, tag, q, sort, **authorId**) |
 | GET | `/api/posts/:slug` | 🔓 | 상세 (조회수 증가) |
+| GET | `/api/posts/:id/edit` | 🔑 | **수정 화면 진입용 조회** — DRAFT 포함, 조회수 증가 없음, 본인 글만 가능 (ADMIN 예외) |
 | POST | `/api/posts` | � | **생성** — `authorId`는 서버에서 `req.user.id`로 자동 설정 (요청 바디로 임의 지정 불가) |
 | PATCH | `/api/posts/:id` | � | **수정** — 본인 글만 가능 (ADMIN 예외) |
 | DELETE | `/api/posts/:id` | � | **소프트 삭제** — 본인 글만 가능 (ADMIN 예외) |
@@ -129,8 +130,8 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 | Method | Endpoint | 인증 | 설명 |
 |---|---|---|---|
 | GET | `/api/admin/dashboard` | 🛡️ | 총 유저/게시글/조회수, 인기글 Top5, 최근 댓글 |
-| GET | `/api/admin/posts` | 🛡️ | **전체 게시글 목록** (다른 유저 글 포함, 모더레이션용) |
-| DELETE | `/api/admin/posts/:id` | 🛡️ | **임의 게시글 강제 삭제/비공개 전환** (스팸/악성 콘텐츠 대응) |
+| GET | `/api/admin/posts` | 🛡️ | **전체 게시글 목록** (다른 유저 글 포함, 모더레이션용) — `page`, `limit`, `q`(제목/작성자명), `status` |
+| DELETE | `/api/admin/posts/:id` | 🛡️ | **임의 게시글 강제 삭제** (스팸/악성 콘텐츠 대응). 비공개 전환은 `PATCH /api/posts/:id/status`를 재사용 (소유권 검증에서 ADMIN 예외 통과) |
 | GET | `/api/admin/comments` | 🛡️ | 전체 댓글 관리 (스팸 삭제) |
 | GET | `/api/admin/users` | 🛡️ | **전체 회원 목록** |
 | PATCH | `/api/admin/users/:id/status` | 🛡️ | **회원 정지(SUSPENDED)/정지 해제(ACTIVE)** |
