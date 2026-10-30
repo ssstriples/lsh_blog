@@ -107,9 +107,27 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 
 | Method | Endpoint | 인증 | 설명 |
 |---|---|---|---|
-| GET | `/api/posts/:postId/comments` | 🔓 | 댓글 목록 (대댓글 포함 트리) |
-| POST | `/api/posts/:postId/comments` | 🔓(게스트 허용) | 댓글 작성 |
-| DELETE | `/api/comments/:id` | � | **삭제 — 본인 댓글만 가능 (ADMIN 예외)** |
+| GET | `/api/posts/:postId/comments` | 🔓 | 댓글 목록 (대댓글 포함 트리, `totalCount`). 답글이 남은 삭제 댓글은 `isDeleted: true`로 자리만 유지 |
+| POST | `/api/posts/:postId/comments` | 🔓(게스트 허용) | 댓글 작성 — 로그인 시 `userId` 서버 강제 설정, 비로그인 시 `guestName`+`guestPassword` 필수. 10회/1분 Rate Limit, 평문 sanitize |
+| DELETE | `/api/comments/:id` | 🔑 | **삭제 — 본인 댓글만 가능 (ADMIN 예외, ADMIN은 게스트 댓글도 삭제 가능)** |
+| POST | `/api/comments/:id/guest-delete` | 🔓 | 게스트 댓글 삭제 — `{ password }` 확인 (실패 10회/15분 Rate Limit) |
+
+### POST `/api/posts/:postId/comments` 예시
+```json
+// Request (비로그인)
+{ "content": "좋은 글 감사합니다", "parentId": null, "guestName": "지나가던손님", "guestPassword": "1234" }
+
+// Response 201 — 비밀번호(해시)는 응답에 절대 포함하지 않는다
+{
+  "success": true,
+  "data": {
+    "id": "cuid_...", "parentId": null, "content": "좋은 글 감사합니다",
+    "createdAt": "2026-10-31T...", "isDeleted": false,
+    "author": { "type": "guest", "name": "지나가던손님" },
+    "replies": []
+  }
+}
+```
 
 ## 5. 좋아요
 
@@ -132,7 +150,8 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 | GET | `/api/admin/dashboard` | 🛡️ | 총 유저/게시글/조회수, 인기글 Top5, 최근 댓글 |
 | GET | `/api/admin/posts` | 🛡️ | **전체 게시글 목록** (다른 유저 글 포함, 모더레이션용) — `page`, `limit`, `q`(제목/작성자명), `status` |
 | DELETE | `/api/admin/posts/:id` | 🛡️ | **임의 게시글 강제 삭제** (스팸/악성 콘텐츠 대응). 비공개 전환은 `PATCH /api/posts/:id/status`를 재사용 (소유권 검증에서 ADMIN 예외 통과) |
-| GET | `/api/admin/comments` | 🛡️ | 전체 댓글 관리 (스팸 삭제) |
+| GET | `/api/admin/comments` | 🛡️ | 전체 댓글 목록 — `page`, `limit`, `q`(내용/게스트명/회원명), 게시글·작성자 이메일 포함 |
+| DELETE | `/api/admin/comments/:id` | 🛡️ | 댓글 강제 삭제 (소유권 무관, 소프트 삭제) |
 | GET | `/api/admin/users` | 🛡️ | **전체 회원 목록** |
 | PATCH | `/api/admin/users/:id/status` | 🛡️ | **회원 정지(SUSPENDED)/정지 해제(ACTIVE)** |
 

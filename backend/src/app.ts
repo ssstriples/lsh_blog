@@ -13,6 +13,7 @@ import userRouter from "@/routes/userRoutes";
 import adminRouter from "@/routes/adminRoutes";
 import categoryRouter from "@/routes/categoryRoutes";
 import tagRouter from "@/routes/tagRoutes";
+import commentRouter from "@/routes/commentRoutes";
 
 export function createApp() {
   const app = express();
@@ -49,6 +50,7 @@ export function createApp() {
   app.use("/api/admin", adminRouter);
   app.use("/api/categories", categoryRouter);
   app.use("/api/tags", tagRouter);
+  app.use("/api/comments", commentRouter);
 
   // 404 핸들러 (등록된 라우트가 없을 때)
   app.use(notFoundHandler);

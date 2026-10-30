@@ -9,9 +9,11 @@ import {
   detailById,
   uploadPostImage,
 } from "@/controllers/postController";
-import { requireAuth } from "@/middlewares/authMiddleware";
+import { list as listComments, create as createComment } from "@/controllers/commentController";
+import { requireAuth, optionalAuth } from "@/middlewares/authMiddleware";
 import { requireOwnership } from "@/middlewares/ownershipMiddleware";
 import { uploadImageMiddleware } from "@/middlewares/uploadMiddleware";
+import { commentRateLimiter } from "@/middlewares/commentRateLimiter";
 import { getPostAuthorId } from "@/services/postService";
 
 const router = Router();
@@ -21,6 +23,10 @@ const ownershipCheck = requireOwnership((req) => getPostAuthorId(req.params.id a
 // 🔓 공개
 router.get("/", list);
 router.get("/:slug", detail);
+
+// 💬 댓글 — 조회는 공개, 작성은 로그인 유저 또는 게스트(닉네임+비밀번호). 스팸 방지 10회/1분
+router.get("/:postId/comments", listComments);
+router.post("/:postId/comments", commentRateLimiter, optionalAuth, createComment);
 
 // 🔒 로그인 필요 — 생성은 누구나, authorId는 서버가 req.user.id로 강제 설정
 router.post("/", requireAuth, create);

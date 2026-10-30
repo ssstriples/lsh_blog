@@ -146,6 +146,7 @@ model Comment {
   postId   String
   userId   String?  // 댓글 작성자 = 소유자. 이 필드로 Ownership Authorization 수행
   guestName String?  // 비로그인 댓글 허용 시
+  guestPasswordHash String? // 🆕 (2026-10-31) 게스트 댓글 삭제용 간단 비밀번호 bcrypt 해시 — API 응답에 절대 포함 금지
   content  String   @db.Text
   parentId String?  // 대댓글
 
@@ -159,6 +160,7 @@ model Comment {
   replies Comment[] @relation("CommentTree")
 
   @@index([postId])
+  @@index([createdAt]) // 🆕 관리자 전체 댓글 목록(최신순)
   @@map("comments")
 }
 

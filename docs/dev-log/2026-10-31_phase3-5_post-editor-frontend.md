@@ -461,7 +461,7 @@ cd frontend && npx next build                       # 성공 (/posts/new ○, /p
 - [ ] 새 글 임시저장 → `/posts/<id>/edit`로 이동, 다시 저장해도 글이 중복 생성되지 않음
 - [ ] 발행글 수정 → 상세 페이지에 60초 기다리지 않고 즉시 반영 (Server Action `revalidatePath`)
 - [ ] 다크모드에서 에디터 코드 블록(lowlight) 색상 대비
-- [ ] ADMIN 계정으로 `/admin/posts` 비공개 전환/강제삭제 (테스트용 ADMIN 계정이 없어 API 403 경로만 확인)
+- [x] ADMIN 계정으로 `/admin/posts` 비공개 전환/강제삭제 — Phase 4 작업 중 테스트 계정을 임시 ADMIN으로 승격해 API(검색/비공개 전환/강제삭제/`/:id/edit`)와 `/admin/posts` 화면 200 확인 (`2026-10-31_phase4_comment-system.md` 참고)
 - [ ] 헤더의 "관리자" 메뉴는 아직 없는 `/admin`(T081 대시보드)으로 연결됨 — T081에서 해결 예정
 
 ---

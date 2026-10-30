@@ -20,6 +20,8 @@ interface PostFilterBarProps {
   q?: string;
   status?: PostStatus;
   placeholder?: string;
+  /** 상태(전체/발행/임시저장) 버튼 노출 여부 — 댓글처럼 상태가 없는 목록은 false */
+  showStatusFilter?: boolean;
 }
 
 /** 검색어/상태 필터를 URL 쿼리(?q=&status=)로 관리한다 — 새로고침/뒤로가기에도 필터가 유지된다. */
@@ -28,6 +30,7 @@ export function PostFilterBar({
   q = "",
   status,
   placeholder = "제목 검색",
+  showStatusFilter = true,
 }: PostFilterBarProps) {
   const router = useRouter();
   const [keyword, setKeyword] = useState(q);
@@ -60,19 +63,21 @@ export function PostFilterBar({
         </Button>
       </form>
 
-      <div className="flex items-center gap-1" role="group" aria-label="상태 필터">
-        {STATUS_OPTIONS.map((option) => (
-          <Button
-            key={option.label}
-            size="sm"
-            variant={option.value === status ? "default" : "outline"}
-            className={cn(option.value === status && "pointer-events-none")}
-            onClick={() => navigate({ q, status: option.value })}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </div>
+      {showStatusFilter && (
+        <div className="flex items-center gap-1" role="group" aria-label="상태 필터">
+          {STATUS_OPTIONS.map((option) => (
+            <Button
+              key={option.label}
+              size="sm"
+              variant={option.value === status ? "default" : "outline"}
+              className={cn(option.value === status && "pointer-events-none")}
+              onClick={() => navigate({ q, status: option.value })}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

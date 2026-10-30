@@ -173,20 +173,23 @@
 ## 💬 PHASE 4 — 댓글 시스템
 
 ### 4-1. 댓글 API (Backend)
-- [ ] **T068** `GET /api/posts/:postId/comments` — 트리 구조 조회 (parentId 재귀)
-- [ ] **T069** `POST /api/posts/:postId/comments` — 작성 (로그인 또는 게스트+간단 비밀번호)
-- [ ] **T070** `DELETE /api/comments/:id` — 🔑 본인 댓글만 삭제 가능 (ownershipMiddleware 적용, ADMIN 예외)
-- [ ] **T070-S** 🔐 댓글 작성 Rate Limit (스팸 방지, 10회/1분)
-- [ ] **T070-S2** 🔐 댓글 내용 XSS sanitize
+- [x] **T068** `GET /api/posts/:postId/comments` — 트리 구조 조회 (parentId 재귀) — `commentService.listComments`: 게시글의 댓글을 한 번에 조회해 Map으로 트리 조립, 답글이 남은 삭제 댓글은 "삭제된 댓글" 자리만 유지(내용/작성자 숨김)하고 답글 없는 삭제 댓글은 재귀적으로 제거(`pruneDeleted`), `totalCount`는 삭제 제외. 비공개/삭제 게시글은 404
+- [x] **T069** `POST /api/posts/:postId/comments` — 작성 (로그인 또는 게스트+간단 비밀번호) — `optionalAuth`로 분기, 회원은 `userId`를 `req.user.id`로 강제 설정 + DB에서 정지(SUSPENDED)/탈퇴 여부 재확인, 게스트는 닉네임 + 비밀번호(bcrypt 해시). 스키마에 `Comment.guestPasswordHash` 컬럼 추가(마이그레이션 `add_comment_guest_password`). `commentSchema.ts`/`commentService.ts`/`commentController.ts`/`commentRoutes.ts` 신규
+- [x] **T070** `DELETE /api/comments/:id` — 🔑 본인 댓글만 삭제 가능 (ownershipMiddleware 적용, ADMIN 예외) — 기존 `requireOwnership` 재사용(`getCommentOwnerId`가 게스트 댓글엔 어떤 유저와도 일치하지 않는 값을 돌려줘 일반 유저 403 / ADMIN 통과). 게스트 댓글은 `POST /api/comments/:id/guest-delete`(비밀번호 확인)로 삭제, 소프트 삭제
+- [x] **T070-S** 🔐 댓글 작성 Rate Limit (스팸 방지, 10회/1분) — `middlewares/commentRateLimiter.ts`(IP 기준). 게스트 비밀번호 무차별 대입 방지용 `guestCommentDeleteRateLimiter`(실패 10회/15분)도 추가
+- [x] **T070-S2** 🔐 댓글 내용 XSS sanitize — 댓글은 평문만 저장: DOMPurify `ALLOWED_TAGS: []` + `RETURN_DOM_FRAGMENT`의 `textContent`로 태그만 제거(문자열 결과를 쓰면 `a < b`가 `a &lt; b`로 깨지는 문제 회피), 태그만 있던 댓글은 400. 프론트는 React 텍스트 렌더링(이스케이프)으로 2중 방어
+  - 기능 테스트 완료(Node fetch): 23건 — 회원/게스트 작성, 게스트 필수값 400, 응답에 비밀번호 해시 미포함, `<script>`/`<img onerror>` 제거 + `<` 문자 보존, 존재하지 않는 부모 400, DRAFT 글 404, 트리 중첩, 비로그인 401·타인 403·게스트 댓글 회원경로 403, 게스트 비밀번호 오답 403·정답 200·재삭제 404, 답글 있는 삭제 댓글 자리 유지 → 마지막 답글 삭제 시 제거, Rate Limit 429
 
 ### 4-2. 댓글 UI (Frontend)
-- [ ] **T071** `CommentList`, `CommentItem`(대댓글 포함) 컴포넌트 — 본인 댓글에만 삭제 버튼 노출
-- [ ] **T072** `CommentForm` (로그인/게스트 분기)
-- [ ] **T073** 게시글 상세 페이지에 댓글 영역 통합
+- [x] **T071** `CommentList`, `CommentItem`(대댓글 포함) 컴포넌트 — 본인 댓글에만 삭제 버튼 노출 — `components/comment/`: `CommentItem`이 재귀로 답글 렌더링(3단계까지 들여쓰기), 작성자/비회원 배지, 인라인 답글 폼. 삭제 버튼은 본인 회원 댓글·ADMIN에게만, 게스트 댓글은 비밀번호 입력 후 삭제. `hooks/useComments.ts`(조회/작성/삭제 + 관리자용)
+- [x] **T072** `CommentForm` (로그인/게스트 분기) — 로그인 시 내용만, 비로그인 시 닉네임 + 삭제용 비밀번호 + 로그인 유도 링크. 세션 확인 중에는 게스트 입력칸을 띄우지 않음
+- [x] **T073** 게시글 상세 페이지에 댓글 영역 통합 — `app/posts/[slug]/page.tsx`에 `CommentSection` 추가 (본문은 ISR, 댓글은 클라이언트에서 실시간 조회)
 
 ### 4-3. 관리자 댓글 모더레이션
-- [ ] **T074** `GET /api/admin/comments` — 전체 댓글 목록 API (🛡️, 소유권 무관 전체 조회)
-- [ ] **T075** `/admin/comments` 페이지 — 스팸/악성 댓글 강제 삭제 UI
+- [x] **T074** `GET /api/admin/comments` — 전체 댓글 목록 API (🛡️, 소유권 무관 전체 조회) — `listAllCommentsForAdmin`(Zod 검증 page/limit/q, q = 내용·게스트명·회원명 검색, 게시글 제목/slug·작성자 이메일 포함, 최신순 — `comments.createdAt` 인덱스 추가) + `DELETE /api/admin/comments/:id` 강제 삭제
+- [x] **T075** `/admin/comments` 페이지 — 스팸/악성 댓글 강제 삭제 UI — `app/admin/comments/page.tsx` + `components/admin/AdminCommentList.tsx` (`PostFilterBar`에 `showStatusFilter` 옵션 추가해 검색창 재사용)
+  - 관리자 기능 테스트 완료: 테스트용 계정을 SQL로 임시 ADMIN 승격 후 16건(관리자 댓글 목록/검색/강제삭제, ADMIN이 게스트 댓글 삭제, Phase 3-5 미검증이던 관리자 게시글 검색·비공개 전환·강제삭제·`/admin/posts` 화면 포함, 일반 유저 `/admin/comments` → `/403`) 통과 후 USER로 원복 확인. `next build` 성공
+- [x] **4 문서화** 📄 `docs/dev-log/2026-10-31_phase4_comment-system.md` + `content/posts/2026-10-31-build-my-blog-10-comment-system.md` 작성
 
 ---
 
