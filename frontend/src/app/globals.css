@@ -239,3 +239,21 @@
 .dark .tiptap-editor .hljs-deletion {
   color: #ffa198;
 }
+
+/* ── 차트 토큰 (components/admin/ViewTrendChart.tsx) ───────────────────────
+ * dataviz 레퍼런스 팔레트의 단일 시리즈(blue) + 차트 chrome.
+ * 시리즈 색은 실제 차트가 놓이는 Card 표면(라이트 #ffffff / 다크 oklch(0.205 0 0)≈#171717)
+ * 기준으로 validate_palette.js 검증 통과(명도 밴드·채도·3:1 대비).
+ * 다크모드는 next-themes가 <html class="dark">를 붙이는 방식이라 .dark 스코프로 전환한다. */
+.viz-root {
+  --viz-series-1: #2a78d6;
+  --viz-surface: var(--card);
+  --viz-grid: #e1e0d9;
+  --viz-axis: #c3c2b7;
+  --viz-ink-muted: #898781;
+}
+.dark .viz-root {
+  --viz-series-1: #3987e5;
+  --viz-grid: #2c2c2a;
+  --viz-axis: #383835;
+}

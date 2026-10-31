@@ -71,6 +71,7 @@ function MyPostRow({ post }: { post: PostSummary }) {
             variant="ghost"
             size="icon-sm"
             aria-label="수정"
+            nativeButton={false}
             render={<Link href={`/posts/${post.id}/edit`} />}
           >
             <Pencil className="h-4 w-4" />
@@ -109,7 +110,7 @@ export function MyPostList({ page, q, status }: MyPostListProps) {
           내가 쓴 글{" "}
           {data && <span className="text-muted-foreground">({data.pagination.totalCount})</span>}
         </h1>
-        <Button render={<Link href="/posts/new" />}>
+        <Button nativeButton={false} render={<Link href="/posts/new" />}>
           <Plus className="h-4 w-4" />새 글 작성
         </Button>
       </div>

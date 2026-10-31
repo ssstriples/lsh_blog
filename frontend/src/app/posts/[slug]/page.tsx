@@ -9,6 +9,7 @@ import { PostContent } from "@/components/post/PostContent";
 import { PostToc } from "@/components/post/PostToc";
 import { PostOwnerActions } from "@/components/post/PostOwnerActions";
 import { CommentSection } from "@/components/comment/CommentSection";
+import { LikeButton } from "@/components/post/LikeButton";
 import { formatDate } from "@/lib/formatDate";
 import type { PostDetail } from "@/types/post";
 
@@ -70,6 +71,11 @@ export default async function PostDetailPage(props: PageProps<"/posts/[slug]">) 
               ))}
             </div>
           )}
+
+          {/* 좋아요 수/여부도 사람마다 다르므로 ISR 본문과 분리해 클라이언트에서 조회 */}
+          <div className="mt-8 flex justify-center">
+            <LikeButton postId={post.id} />
+          </div>
 
           {/* 본문은 ISR 캐시, 댓글은 클라이언트에서 실시간으로 불러온다 */}
           <CommentSection postId={post.id} postAuthorId={post.author.id} />

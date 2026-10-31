@@ -50,6 +50,20 @@ export const listPostsQuerySchema = z.object({
 
 export type ListPostsQuery = z.infer<typeof listPostsQuerySchema>;
 
+/** GET /api/search 쿼리 — 검색어 필수 */
+export const searchPostsQuerySchema = z.object({
+  // `error`: q가 아예 없을 때(undefined) Zod 기본 영어 메시지 대신 보여줄 문구
+  q: z
+    .string({ error: "검색어를 입력해주세요." })
+    .trim()
+    .min(1, "검색어를 입력해주세요.")
+    .max(100, "검색어는 100자 이내여야 합니다."),
+  page: z.coerce.number().int().min(1).optional().default(1),
+  limit: z.coerce.number().int().min(1).max(50).optional().default(10),
+});
+
+export type SearchPostsQuery = z.infer<typeof searchPostsQuerySchema>;
+
 /** 마이페이지/관리자 목록 쿼리 — 공개 목록과 달리 DRAFT도 보이므로 상태 필터를 받는다. */
 export const managePostsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional().default(1),

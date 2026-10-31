@@ -7,9 +7,13 @@ import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { PostStatus } from "@/types/post";
+export interface StatusOption {
+  value: string | undefined;
+  label: string;
+}
 
-const STATUS_OPTIONS: { value: PostStatus | undefined; label: string }[] = [
+/** 기본값: 게시글 상태 (전체/발행/임시저장) */
+const POST_STATUS_OPTIONS: StatusOption[] = [
   { value: undefined, label: "전체" },
   { value: "PUBLISHED", label: "발행" },
   { value: "DRAFT", label: "임시저장" },
@@ -18,10 +22,12 @@ const STATUS_OPTIONS: { value: PostStatus | undefined; label: string }[] = [
 interface PostFilterBarProps {
   basePath: string;
   q?: string;
-  status?: PostStatus;
+  status?: string;
   placeholder?: string;
-  /** 상태(전체/발행/임시저장) 버튼 노출 여부 — 댓글처럼 상태가 없는 목록은 false */
+  /** 상태 버튼 노출 여부 — 댓글처럼 상태가 없는 목록은 false */
   showStatusFilter?: boolean;
+  /** 상태 버튼 목록 — 회원(활성/정지)처럼 게시글이 아닌 목록에서 바꿔 쓴다 */
+  statusOptions?: StatusOption[];
 }
 
 /** 검색어/상태 필터를 URL 쿼리(?q=&status=)로 관리한다 — 새로고침/뒤로가기에도 필터가 유지된다. */
@@ -31,11 +37,12 @@ export function PostFilterBar({
   status,
   placeholder = "제목 검색",
   showStatusFilter = true,
+  statusOptions = POST_STATUS_OPTIONS,
 }: PostFilterBarProps) {
   const router = useRouter();
   const [keyword, setKeyword] = useState(q);
 
-  function navigate(next: { q?: string; status?: PostStatus }) {
+  function navigate(next: { q?: string; status?: string }) {
     const search = new URLSearchParams();
     if (next.q) search.set("q", next.q);
     if (next.status) search.set("status", next.status);
@@ -65,7 +72,7 @@ export function PostFilterBar({
 
       {showStatusFilter && (
         <div className="flex items-center gap-1" role="group" aria-label="상태 필터">
-          {STATUS_OPTIONS.map((option) => (
+          {statusOptions.map((option) => (
             <Button
               key={option.label}
               size="sm"

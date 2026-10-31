@@ -205,6 +205,8 @@ export async function listAllCommentsForAdmin(query: AdminCommentsQuery) {
 
   const where: Prisma.CommentWhereInput = {
     deletedAt: null,
+    // 삭제된 글의 댓글은 공개 화면 어디에도 안 보이므로 모더레이션 대상에서도 뺀다 (링크도 404)
+    post: { deletedAt: null },
     ...(q
       ? {
           OR: [

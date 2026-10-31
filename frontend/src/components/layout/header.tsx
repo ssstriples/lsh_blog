@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
-import { PenSquare, User as UserIcon, LogOut, LayoutDashboard } from "lucide-react";
+import { PenSquare, User as UserIcon, LogOut, LayoutDashboard, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,13 +20,24 @@ export function Header() {
   const user = session?.user;
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
+    <header className="bg-background/80 sticky top-0 z-40 w-full border-b backdrop-blur">
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
         <Link href="/" className="font-semibold tracking-tight">
           lsh_blog
         </Link>
 
         <nav className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="검색"
+            nativeButton={false}
+            render={
+              <Link href="/search">
+                <Search className="h-4 w-4" />
+              </Link>
+            }
+          />
           <ThemeToggle />
 
           {isLoading ? null : user ? (
@@ -34,6 +45,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
+                nativeButton={false}
                 render={
                   <Link href="/posts/new">
                     <PenSquare className="mr-1 h-4 w-4" />
@@ -79,8 +91,17 @@ export function Header() {
             </>
           ) : (
             <>
-              <Button variant="ghost" size="sm" render={<Link href="/login">로그인</Link>} />
-              <Button size="sm" render={<Link href="/signup">회원가입</Link>} />
+              <Button
+                variant="ghost"
+                size="sm"
+                nativeButton={false}
+                render={<Link href="/login">로그인</Link>}
+              />
+              <Button
+                size="sm"
+                nativeButton={false}
+                render={<Link href="/signup">회원가입</Link>}
+              />
             </>
           )}
         </nav>

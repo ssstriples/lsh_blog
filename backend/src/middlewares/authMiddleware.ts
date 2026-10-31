@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { AppError } from "@/middlewares/errorHandler";
 import { verifyAccessToken } from "@/lib/jwt";
+import { prisma } from "@/lib/prisma";
 
 export interface AuthUser {
   id: string;
@@ -58,6 +59,28 @@ export function optionalAuth(req: Request, _res: Response, next: NextFunction): 
   }
 
   next();
+}
+
+/**
+ * 쓰기(작성/수정/업로드) 라우트용 — 계정이 지금도 사용 가능한지 DB에서 다시 확인한다.
+ * Access Token은 발급 시점의 정보라, 관리자가 정지(SUSPENDED)해도 만료(15분)까지는 유효하다.
+ * (Refresh는 이미 정지 계정을 거부하므로, 이 미들웨어로 "남은 15분" 동안의 쓰기를 막는다.)
+ * requireAuth 이후에 사용해야 함.
+ */
+export async function requireActiveUser(req: Request, _res: Response, next: NextFunction): Promise<void> {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user!.id },
+      select: { status: true, deletedAt: true },
+    });
+    if (!user || user.deletedAt) throw new AppError("로그인이 필요합니다.", 401);
+    if (user.status === "SUSPENDED") {
+      throw new AppError("정지된 계정입니다. 관리자에게 문의해주세요.", 403);
+    }
+    next();
+  } catch (err) {
+    next(err);
+  }
 }
 
 /** 관리자 전용 라우트에 사용. requireAuth 이후에 사용해야 함. */

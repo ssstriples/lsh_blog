@@ -9,6 +9,7 @@ import type {
   UpdatePostInput,
   ListPostsQuery,
   ManagePostsQuery,
+  SearchPostsQuery,
 } from "@/schemas/postSchema";
 
 const POST_LIST_SELECT = {
@@ -191,6 +192,70 @@ export async function listPosts(query: ListPostsQuery) {
   ]);
 
   return {
+    posts,
+    pagination: { page, limit, totalCount, totalPages: Math.ceil(totalCount / limit) },
+  };
+}
+
+/** 본문 HTML에서 태그를 걷어낸 순수 텍스트 (검색 결과 미리보기용) */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/** 검색어 주변 텍스트를 잘라 미리보기(excerpt)를 만든다. 본문에 없으면(제목만 일치) 본문 앞부분. */
+function buildExcerpt(html: string, q: string, radius = 60): string {
+  const text = htmlToText(html);
+  const index = text.toLowerCase().indexOf(q.toLowerCase());
+  if (index === -1) return text.slice(0, radius * 2) + (text.length > radius * 2 ? "…" : "");
+
+  const start = Math.max(0, index - radius);
+  const end = Math.min(text.length, index + q.length + radius);
+  return (start > 0 ? "…" : "") + text.slice(start, end) + (end < text.length ? "…" : "");
+}
+
+/**
+ * GET /api/search — 제목+본문 ILIKE 검색 (공개 글만)
+ * Prisma `contains` + `mode: "insensitive"`가 Postgres `ILIKE '%q%'`로 변환된다.
+ * ⚠️ 본문은 HTML이라 태그/속성 이름(예: "class")에도 걸릴 수 있다 — 규모가 커지면 순수 텍스트 컬럼이나
+ *    Postgres 전문 검색(tsvector)으로 바꾸는 것을 고려한다.
+ */
+export async function searchPosts(query: SearchPostsQuery) {
+  const { q, page, limit } = query;
+
+  const where: Prisma.PostWhereInput = {
+    deletedAt: null,
+    status: "PUBLISHED",
+    OR: [
+      { title: { contains: q, mode: "insensitive" } },
+      { content: { contains: q, mode: "insensitive" } },
+    ],
+  };
+
+  const [rows, totalCount] = await Promise.all([
+    prisma.post.findMany({
+      where,
+      orderBy: { publishedAt: "desc" },
+      skip: (page - 1) * limit,
+      take: limit,
+      select: { ...POST_LIST_SELECT, content: true },
+    }),
+    prisma.post.count({ where }),
+  ]);
+
+  // 본문 전체는 응답에서 빼고, 검색어 주변 미리보기만 내려준다.
+  const posts = rows.map(({ content, ...post }) => ({ ...post, excerpt: buildExcerpt(content, q) }));
+
+  return {
+    q,
     posts,
     pagination: { page, limit, totalCount, totalPages: Math.ceil(totalCount / limit) },
   };

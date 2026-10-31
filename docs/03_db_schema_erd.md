@@ -173,6 +173,7 @@ model PostView {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@unique([postId, ipHash])   // 동일 IP 중복 카운트 방지 (일단위 재설계 가능)
+  @@index([viewedAt])          // 🆕 (2026-10-31) 관리자 대시보드 일별 조회수 추이
   @@map("post_views")
 }
 
@@ -188,6 +189,7 @@ model PostLike {
   user User? @relation(fields: [userId], references: [id])
 
   @@unique([postId, userId])
+  @@unique([postId, guestId])  // 🆕 (2026-10-31) 게스트 중복 방지 — NULL은 서로 달라서 위 제약만으론 userId=NULL인 게스트를 못 막음
   @@map("post_likes")
 }
 ```

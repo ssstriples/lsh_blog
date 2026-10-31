@@ -28,7 +28,12 @@ export function PostOwnerActions({ postId, slug, authorId }: PostOwnerActionsPro
 
   return (
     <div className="flex items-center gap-2">
-      <Button variant="outline" size="sm" render={<Link href={`/posts/${postId}/edit`} />}>
+      <Button
+        variant="outline"
+        size="sm"
+        nativeButton={false}
+        render={<Link href={`/posts/${postId}/edit`} />}
+      >
         <Pencil className="h-4 w-4" />
         수정
       </Button>

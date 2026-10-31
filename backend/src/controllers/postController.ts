@@ -6,6 +6,7 @@ import {
   updatePostStatusSchema,
   listPostsQuerySchema,
   managePostsQuerySchema,
+  searchPostsQuerySchema,
 } from "@/schemas/postSchema";
 import {
   createPost,
@@ -16,6 +17,7 @@ import {
   listMyPosts,
   listAllPostsForAdmin,
   listPostsByAuthor,
+  searchPosts,
   getPostBySlug,
   getPostById,
 } from "@/services/postService";
@@ -100,6 +102,17 @@ export async function detailById(req: Request, res: Response, next: NextFunction
   try {
     const post = await getPostById(paramId(req.params.id));
     res.status(200).json({ success: true, data: post });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/** GET /api/search?q= — 🔓 제목+본문 검색 (공개 글만, 검색어 주변 미리보기 포함) */
+export async function search(req: Request, res: Response, next: NextFunction) {
+  try {
+    const query = parseOrThrow(searchPostsQuerySchema, req.query);
+    const result = await searchPosts(query);
+    res.status(200).json({ success: true, data: result });
   } catch (err) {
     next(err);
   }

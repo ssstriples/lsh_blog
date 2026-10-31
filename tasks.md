@@ -196,20 +196,23 @@
 ## 🔍 PHASE 5 — 검색 & 좋아요 & 통계
 
 ### 5-1. 검색
-- [ ] **T076** `GET /api/search?q=` — 제목+본문 `ILIKE` 검색 API
-- [ ] **T077** `/search` 페이지 — 검색창 + 결과 목록
+- [x] **T076** `GET /api/search?q=` — 제목+본문 `ILIKE` 검색 API — `routes/searchRoutes.ts` + `postService.searchPosts`(Prisma `contains` + `mode: "insensitive"` = ILIKE, PUBLISHED만), `searchPostsQuerySchema`(q 1~100자 필수, 없으면 한글 메시지). 본문 전체 대신 태그를 걷어낸 검색어 주변 미리보기(`excerpt`)만 응답
+- [x] **T077** `/search` 페이지 — 검색창 + 결과 목록 — `app/search/page.tsx` + `components/search/SearchResults.tsx`(일치 부분 `<mark>` 하이라이트를 문자열 분할 + React 텍스트로 렌더링해 HTML 주입 없음, `keepPreviousData`로 페이지 이동 시 이전 결과 유지), 헤더에 검색 아이콘 추가
 
 ### 5-2. 좋아요
-- [ ] **T078** `POST /api/posts/:postId/like` — 토글 API (쿠키 기반 guestId)
-- [ ] **T079** 게시글 상세에 좋아요 버튼 UI
+- [x] **T078** `POST /api/posts/:postId/like` — 토글 API (쿠키 기반 guestId) — `likeService.ts`/`likeController.ts`: 로그인 유저는 계정(userId), 비로그인은 서버가 발급한 HttpOnly `guestId` 쿠키(UUID 형식만 신뢰, `path=/api/posts`, SameSite=Lax) 기준. `GET /api/posts/:postId/like`(내 여부 + 수)도 추가. 동시 클릭은 unique 제약(P2002)으로 흡수. 🐛 기존 `@@unique([postId, userId])`는 userId가 NULL인 게스트 좋아요를 못 막아(Postgres NULL ≠ NULL) `@@unique([postId, guestId])` 추가(마이그레이션 `add_like_guest_unique_view_index`). 토글 Rate Limit 30회/1분
+- [x] **T079** 게시글 상세에 좋아요 버튼 UI — `components/post/LikeButton.tsx` + `hooks/useLike.ts`(`credentials: "include"`로 쿠키 전송, 낙관적 업데이트 후 서버 값으로 보정, 로그인 상태가 바뀌면 다시 조회). 상세 페이지 태그 아래 배치 (ISR 본문과 분리해 클라이언트 조회)
 
 ### 5-3. 관리자 대시보드 & 회원 관리
-- [ ] **T080** `GET /api/admin/dashboard` — 통계 집계 API (총 유저/게시글/조회수/댓글, 인기글 Top5)
-- [ ] **T081** `/admin` 대시보드 페이지 — Recharts 조회수 추이 차트
-- [ ] **T082** 인기글 Top5 / 최근 댓글 위젯
-- [ ] **T082-S** 🆕 `GET /api/admin/users` — 전체 회원 목록 API (🛡️)
-- [ ] **T082-S2** 🆕 `PATCH /api/admin/users/:id/status` — 회원 정지/정지 해제 API (🛡️)
-- [ ] **T082-S3** 🆕 `/admin/users` 페이지 — 회원 목록 + 정지/해제 액션 UI
+- [x] **T080** `GET /api/admin/dashboard` — 통계 집계 API (총 유저/게시글/조회수/댓글, 인기글 Top5) — `services/dashboardService.ts`: 총계 + 인기글 Top5(좋아요/댓글 수 포함) + 최근 댓글 5 + **최근 14일(KST) 일별 조회수**(`post_views`를 `$queryRaw`로 날짜별 집계, 빈 날은 0으로 채움, `post_views.viewedAt` 인덱스 추가). 삭제된 글의 조회/댓글은 총계·추이·최근 댓글에서 모두 제외해 숫자 기준 통일
+- [x] **T081** `/admin` 대시보드 페이지 — Recharts 조회수 추이 차트 — `components/admin/ViewTrendChart.tsx`(dataviz 스킬 절차 적용: 단일 시리즈라 범례 없이 제목으로 설명, 2px 선 + 10% 면, 실선 hairline 그리드, 크로스헤어 툴팁(값 우선), 끝점 직접 라벨(본문 잉크), 일별 이산 값이라 linear, "표로 보기" 테이블 제공). 색은 `globals.css` `.viz-root` 토큰 — Card 표면(라이트 #fff / 다크 #171717) 기준 `validate_palette.js` 통과. `app/admin/layout.tsx` + `AdminNav`로 관리자 탭 공통화
+- [x] **T082** 인기글 Top5 / 최근 댓글 위젯 — `components/admin/DashboardView.tsx`(KPI 타일 4개 + 위젯 2개)
+- [x] **T082-S** 🆕 `GET /api/admin/users` — 전체 회원 목록 API (🛡️) — `services/userAdminService.ts`(q = 닉네임/이메일, status 필터, 글/댓글 수, password 미포함), `schemas/adminSchema.ts`, `controllers/adminController.ts`
+- [x] **T082-S2** 🆕 `PATCH /api/admin/users/:id/status` — 회원 정지/정지 해제 API (🛡️) — 본인 계정 400 / 다른 ADMIN 403 / 바디의 `role`은 스키마에 없어 무시, 보안 로그 기록. 🔐 신규 `requireActiveUser` 미들웨어로 정지 계정이 **남은 Access Token(최대 15분)으로 글쓰기·수정·삭제·업로드하는 것도 차단** (로그인/재발급/댓글은 기존에 차단됨)
+- [x] **T082-S3** 🆕 `/admin/users` 페이지 — 회원 목록 + 정지/해제 액션 UI — `components/admin/AdminUserList.tsx`(상태 배지는 아이콘+글자, 본인/관리자 계정은 버튼 대신 사유 표시, 정지 시 효과 안내 confirm). `PostFilterBar`에 `statusOptions` 추가해 재사용
+  - 기능 테스트 완료: Phase 5 API 34건(검색 대소문자/한글/DRAFT 제외/미리보기, 게스트 쿠키 발급·토글·위조 쿠키 무시·회원 계정 기준, 대시보드 14일 연속·KST·추이 합 ≤ 총 조회수·삭제 글 댓글 제외, 회원 검색/정지/정지 후 기존 토큰 글쓰기·댓글 403/로그인 403/본인 400/관리자 403/role 주입 무시/해제) + Phase 3-5·4 회귀 테스트(17건·23건) 통과. puppeteer-core + 로컬 Chrome으로 `/admin`(라이트·다크·호버·모바일)·`/admin/users`·상세·`/search` 스크린샷 확인, 브라우저 콘솔 에러 0건. `next build` 성공
+  - 🐛 기존 버그 수정: Base UI `Button`에 `render={<Link>}`를 쓰면 `nativeButton` 경고가 콘솔에 찍히던 문제(헤더 글쓰기·로그인·회원가입 등, Phase 2-3부터 존재) — 7곳에 `nativeButton={false}` 추가
+- [x] **5 문서화** 📄 `docs/dev-log/2026-10-31_phase5_search-likes-dashboard.md` + `content/posts/2026-10-31-build-my-blog-11-search-likes-dashboard.md` 작성
 
 ---
 

@@ -133,13 +133,14 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 
 | Method | Endpoint | 인증 | 설명 |
 |---|---|---|---|
-| POST | `/api/posts/:postId/like` | 🔓(쿠키 기반) | 좋아요 토글 |
+| GET | `/api/posts/:postId/like` | 🔓 | 내 좋아요 여부 + 전체 수 `{ liked, likeCount }` (로그인=계정, 비로그인=`guestId` 쿠키, 쿠키 없으면 liked=false) |
+| POST | `/api/posts/:postId/like` | 🔓(쿠키 기반) | 좋아요 토글 — 비로그인 첫 요청 시 서버가 HttpOnly `guestId` 쿠키(`path=/api/posts`) 발급. 프론트는 `credentials: "include"` 필요. 30회/1분 Rate Limit |
 
 ## 6. 검색
 
 | Method | Endpoint | 인증 | 설명 |
 |---|---|---|---|
-| GET | `/api/search?q=` | 🔓 | 제목+본문 검색 |
+| GET | `/api/search?q=` | 🔓 | 제목+본문 검색 (ILIKE, 공개 글만) — `q`(1~100자 필수), `page`, `limit`. 본문 대신 검색어 주변 `excerpt` 반환 |
 
 ## 7. 관리자 모더레이션 (`/api/admin`)
 
@@ -147,13 +148,13 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 
 | Method | Endpoint | 인증 | 설명 |
 |---|---|---|---|
-| GET | `/api/admin/dashboard` | 🛡️ | 총 유저/게시글/조회수, 인기글 Top5, 최근 댓글 |
+| GET | `/api/admin/dashboard` | 🛡️ | `totals`(회원/게시글/조회수/댓글), `popularPosts`(Top5, 좋아요·댓글 수), `recentComments`(5), `viewTrend`(최근 14일 KST 일별 조회수, 빈 날 0). 삭제된 글의 조회·댓글은 제외 |
 | GET | `/api/admin/posts` | 🛡️ | **전체 게시글 목록** (다른 유저 글 포함, 모더레이션용) — `page`, `limit`, `q`(제목/작성자명), `status` |
 | DELETE | `/api/admin/posts/:id` | 🛡️ | **임의 게시글 강제 삭제** (스팸/악성 콘텐츠 대응). 비공개 전환은 `PATCH /api/posts/:id/status`를 재사용 (소유권 검증에서 ADMIN 예외 통과) |
 | GET | `/api/admin/comments` | 🛡️ | 전체 댓글 목록 — `page`, `limit`, `q`(내용/게스트명/회원명), 게시글·작성자 이메일 포함 |
 | DELETE | `/api/admin/comments/:id` | 🛡️ | 댓글 강제 삭제 (소유권 무관, 소프트 삭제) |
-| GET | `/api/admin/users` | 🛡️ | **전체 회원 목록** |
-| PATCH | `/api/admin/users/:id/status` | 🛡️ | **회원 정지(SUSPENDED)/정지 해제(ACTIVE)** |
+| GET | `/api/admin/users` | 🛡️ | **전체 회원 목록** — `page`, `limit`, `q`(닉네임/이메일), `status`(ACTIVE/SUSPENDED), 글·댓글 수 포함 (password 미포함) |
+| PATCH | `/api/admin/users/:id/status` | 🛡️ | **회원 정지(SUSPENDED)/정지 해제(ACTIVE)** — 본인 400, 다른 ADMIN 403. 정지 즉시 남은 Access Token으로도 글쓰기/댓글 차단(`requireActiveUser`) |
 
 ### PATCH `/api/admin/users/:id/status` 예시
 ```json
