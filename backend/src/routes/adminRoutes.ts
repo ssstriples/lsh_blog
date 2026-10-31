@@ -4,8 +4,14 @@ import { adminListAllPosts, adminForceDeletePost } from "@/controllers/postContr
 import { create as createCategory, update as updateCategory, remove as removeCategory } from "@/controllers/categoryController";
 import { adminList as adminListComments, adminRemove as adminRemoveComment } from "@/controllers/commentController";
 import { dashboard, listUsers, changeUserStatus } from "@/controllers/adminController";
+import { status as aiStatus, draft as aiDraft } from "@/controllers/aiController";
+import { aiDraftRateLimiter } from "@/middlewares/aiRateLimiter";
 
 const router = Router();
+
+// 🛡️ 관리자 전용 — AI 초안 생성 (호출마다 비용 발생 → 관리자 한정 + 1시간 10회)
+router.get("/ai/status", requireAuth, requireAdmin, aiStatus);
+router.post("/ai/draft", requireAuth, requireAdmin, aiDraftRateLimiter, aiDraft);
 
 // 🛡️ 관리자 전용 — 대시보드 통계
 router.get("/dashboard", requireAuth, requireAdmin, dashboard);

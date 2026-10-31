@@ -29,7 +29,9 @@ export function createApp() {
   app.use(globalRateLimiter);
 
   // Body 파서
-  app.use(express.json());
+  // 기본 100kb는 코드 블록이 많은 긴 게시글(TipTap HTML)이나 AI 초안 참고 자료(한글 6만 자 ≈ 180KB)를
+  // 담기에 부족하다. 상한을 넉넉히 두되, 넘으면 errorHandler가 413으로 응답한다.
+  app.use(express.json({ limit: "1mb" }));
   app.use(express.urlencoded({ extended: true }));
 
   // 쿠키 파서 — Refresh Token(HttpOnly Cookie) 읽기용

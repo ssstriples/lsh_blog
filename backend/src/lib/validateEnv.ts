@@ -14,7 +14,22 @@ const REQUIRED_ENV_VARS = [
   "CLOUDINARY_API_SECRET",
 ] as const;
 
+/**
+ * 선택 환경변수 — 없어도 서버는 뜨지만 해당 기능만 꺼진다 (시작 시 경고로 알려준다).
+ * - ANTHROPIC_API_KEY: AI 초안 생성(/api/admin/ai/*), AI 명세서 파이프라인 CLI
+ */
+const OPTIONAL_ENV_VARS: { key: string; feature: string }[] = [
+  { key: "ANTHROPIC_API_KEY", feature: "AI 초안 생성 / AI 명세서 파이프라인" },
+];
+
 export function validateEnv(): void {
+  for (const { key, feature } of OPTIONAL_ENV_VARS) {
+    if (!process.env[key]) {
+      // eslint-disable-next-line no-console
+      console.warn(`⚠️  선택 환경변수 ${key}가 없어 "${feature}" 기능이 비활성화됩니다.`);
+    }
+  }
+
   const missing = REQUIRED_ENV_VARS.filter((key) => !process.env[key]);
 
   if (missing.length > 0) {

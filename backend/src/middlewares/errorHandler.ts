@@ -20,12 +20,25 @@ export class AppError extends Error {
  *   (스택 트레이스가 노출되면 공격자가 서버 내부 구조를 유추하는 단서가 될 수 있음)
  * - 에러는 winston 로거를 통해 서버 로그(파일/콘솔)에만 상세히 기록합니다.
  */
+/** express.json()(body-parser)이 던지는 에러 — AppError가 아니어서 그대로 두면 500이 된다 */
+const BODY_PARSER_ERRORS: Record<string, { status: number; message: string }> = {
+  "entity.too.large": { status: 413, message: "요청 본문이 너무 큽니다." },
+  "entity.parse.failed": { status: 400, message: "요청 본문의 JSON 형식이 올바르지 않습니다." },
+};
+
 export function errorHandler(
   err: Error | AppError,
   req: Request,
   res: Response,
   _next: NextFunction,
 ): void {
+  const bodyParserError = BODY_PARSER_ERRORS[(err as { type?: string }).type ?? ""];
+  if (bodyParserError) {
+    logger.warn(`[${req.method} ${req.originalUrl}] ${err.message}`);
+    res.status(bodyParserError.status).json({ success: false, message: bodyParserError.message });
+    return;
+  }
+
   const statusCode = err instanceof AppError ? err.statusCode : 500;
   const isOperational = err instanceof AppError ? err.isOperational : false;
 

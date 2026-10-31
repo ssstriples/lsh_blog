@@ -155,6 +155,8 @@ Cookie: refreshToken=<token>  (HttpOnly; Secure; SameSite=Strict; path=/api/auth
 | DELETE | `/api/admin/comments/:id` | 🛡️ | 댓글 강제 삭제 (소유권 무관, 소프트 삭제) |
 | GET | `/api/admin/users` | 🛡️ | **전체 회원 목록** — `page`, `limit`, `q`(닉네임/이메일), `status`(ACTIVE/SUSPENDED), 글·댓글 수 포함 (password 미포함) |
 | PATCH | `/api/admin/users/:id/status` | 🛡️ | **회원 정지(SUSPENDED)/정지 해제(ACTIVE)** — 본인 400, 다른 ADMIN 403. 정지 즉시 남은 Access Token으로도 글쓰기/댓글 차단(`requireActiveUser`) |
+| GET | `/api/admin/ai/status` | 🛡️ | AI 기능 사용 가능 여부 `{ enabled, model }` (서버에 `ANTHROPIC_API_KEY`가 있는지만 알려주고 값은 노출하지 않음) |
+| POST | `/api/admin/ai/draft` | 🛡️ | **AI 블로그 초안 생성** — `{ idea (5~2000자), sourceDocument? (~60,000자) }` → `{ title, summary, tags, html, model, usage }`. 저장하지 않음(에디터에 로드). 성공 기준 1시간 10회. 키 없음 503 / 거절 422 / 잘림·응답 해석 실패 502 / AI 측 429 → 429 |
 
 ### PATCH `/api/admin/users/:id/status` 예시
 ```json

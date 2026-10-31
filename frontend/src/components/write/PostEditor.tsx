@@ -12,6 +12,8 @@ import { PostStatusBadge } from "@/components/post/PostStatusBadge";
 import { RichTextEditor } from "@/components/write/RichTextEditor";
 import { TagInput } from "@/components/write/TagInput";
 import { ThumbnailUploader } from "@/components/write/ThumbnailUploader";
+import { AiDraftDialog } from "@/components/write/AiDraftDialog";
+import type { AiDraft } from "@/hooks/useAiDraft";
 import { useCategories } from "@/hooks/useCategories";
 import { useDeletePost, useSavePost } from "@/hooks/usePostMutations";
 import { useDraftStore, type PostDraft } from "@/store/draftStore";
@@ -132,6 +134,18 @@ export function PostEditor({ post }: { post?: PostDetail }) {
     return () => clearInterval(timer);
   }, [draftKey, saveDraft]);
 
+  /** AI 초안을 폼에 반영 — 이미 쓰던 내용이 있으면 덮어쓰기 전에 확인한다 (자동저장 원고는 그대로 남는다) */
+  function handleApplyAiDraft(draft: AiDraft) {
+    const hasWork = title.trim() !== "" || !isEmptyContent(content);
+    if (hasWork && !window.confirm("작성 중인 제목·태그·본문을 AI 초안으로 바꿀까요?")) return;
+
+    setTitle(draft.title);
+    setTags(draft.tags);
+    setContent(draft.html);
+    setEditorKey((k) => k + 1); // TipTap은 초기 내용만 받으므로 다시 마운트해 새 본문을 넣는다
+    toast.success("AI 초안을 넣었습니다. 발행 전에 꼭 검토해주세요.");
+  }
+
   function handleRestore(draft: PostDraft) {
     setTitle(draft.title);
     setSlug(draft.slug);
@@ -225,9 +239,15 @@ export function PostEditor({ post }: { post?: PostDetail }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-2xl font-semibold tracking-tight">{post ? "글 수정" : "새 글 작성"}</h1>
         {serverStatus && <PostStatusBadge status={serverStatus} />}
+        {/* 🛡️ AI 초안은 호출마다 비용이 들어 관리자에게만 노출 (백엔드도 requireAdmin으로 막는다) */}
+        {session?.user.role === "ADMIN" && (
+          <div className="ml-auto flex items-center gap-2">
+            <AiDraftDialog onApply={handleApplyAiDraft} />
+          </div>
+        )}
       </div>
 
       {restoreCandidate && (

@@ -47,3 +47,4 @@ summary: "목록 페이지에 보여줄 한 줄 요약"
 | [2026-10-31-build-my-blog-09-tiptap-editor-autosave.md](./2026-10-31-build-my-blog-09-tiptap-editor-autosave.md) | 기술 블로그를 직접 만들어보자 #9 — TipTap 에디터와 '날아가지 않는' 글쓰기 화면 | DRAFT |
 | [2026-10-31-build-my-blog-10-comment-system.md](./2026-10-31-build-my-blog-10-comment-system.md) | 기술 블로그를 직접 만들어보자 #10 — 대댓글, 게스트 댓글, 그리고 스팸 막기 | DRAFT |
 | [2026-10-31-build-my-blog-11-search-likes-dashboard.md](./2026-10-31-build-my-blog-11-search-likes-dashboard.md) | 기술 블로그를 직접 만들어보자 #11 — 검색, 좋아요, 그리고 숫자가 맞는 대시보드 | DRAFT |
+| [2026-10-31-build-my-blog-12-ai-writing-pipeline.md](./2026-10-31-build-my-blog-12-ai-writing-pipeline.md) | 기술 블로그를 직접 만들어보자 #12 — AI로 명세서와 글 초안 쓰기, 그리고 API 키 없이 테스트하기 | DRAFT (실사용 결과 보강 후 발행 — T087) |

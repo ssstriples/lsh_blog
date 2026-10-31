@@ -25,6 +25,7 @@
 | [2026-10-31_phase3-5_post-editor-frontend.md](./2026-10-31_phase3-5_post-editor-frontend.md) | Phase 3-5 | TipTap v3 에디터(lowlight 코드블록/표/이미지), `/posts/new`·`/posts/[id]/edit`(서버에서 소유권 403 처리, 신규 `GET /api/posts/:id/edit`), Zustand localStorage 30초 자동저장, 발행/임시저장/삭제 UI + ISR 즉시 재검증(Server Action), `/my/posts`·`/admin/posts` 필터 목록, Zod 4 `.partial()`+`.default()`로 발행글이 비공개로 바뀌던 버그 수정 | 2026-10-31 |
 | [2026-10-31_phase4_comment-system.md](./2026-10-31_phase4_comment-system.md) | Phase 4 | 댓글 트리 조회(1회 쿼리 + Map 조립, 삭제 댓글 자리 유지/정리), 회원/게스트(닉네임+비밀번호, `guestPasswordHash` 마이그레이션) 작성, `requireOwnership` 재사용 삭제 + 게스트 비밀번호 삭제, 작성/비밀번호 Rate Limit, DOMPurify 평문 sanitize(`&lt;` 깨짐 회피), 댓글 UI·관리자 모더레이션, 살아남은 dev 서버 프로세스 트러블슈팅 | 2026-10-31 |
 | [2026-10-31_phase5_search-likes-dashboard.md](./2026-10-31_phase5_search-likes-dashboard.md) | Phase 5 | 검색 API/화면(ILIKE + 검색어 주변 미리보기·하이라이트), 좋아요(계정/서버 발급 HttpOnly guestId 쿠키, NULL unique 함정 → `@@unique([postId, guestId])`), 관리자 대시보드(KST 14일 조회수 추이, 삭제 글 제외로 숫자 기준 통일, dataviz 절차 적용 Recharts 차트), 회원 정지/해제 + `requireActiveUser`로 정지 직후 남은 토큰의 쓰기 차단, `migrate diff` 수동 마이그레이션, puppeteer 브라우저 확인으로 Base UI `nativeButton` 기존 경고 수정 | 2026-10-31 |
+| [2026-10-31_phase6_ai-writing-pipeline.md](./2026-10-31_phase6_ai-writing-pipeline.md) | Phase 6 | AI 명세서 파이프라인: 프로젝트 컨텍스트를 담은 1·2단계 프롬프트 확정, `@anthropic-ai/sdk`(claude-opus-5-5, 스트리밍·구조화 출력·캐싱·거절 폴백), 관리자 전용 "AI 초안 생성"(3단계, 비용 보호), `pnpm ai:pipeline` CLI(`docs/generated/`), API 키 없이 mock 서버로 검증 → 구조화 출력 거절/잘림 시 500 버그 수정, body-parser 100kb/깨진 JSON 500 기존 버그 수정 | 2026-10-31 |
 
 ## 작성 규칙
 

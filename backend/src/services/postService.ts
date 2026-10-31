@@ -27,7 +27,7 @@ const POST_LIST_SELECT = {
 } satisfies Prisma.PostSelect;
 
 /** 게시글 본문(HTML)의 XSS 위험 요소를 제거한다. */
-function sanitizeContent(html: string): string {
+export function sanitizeContent(html: string): string {
   return DOMPurify.sanitize(html, {
     // 코드 하이라이팅(Shiki), TipTap이 생성하는 마크업을 허용하기 위한 확장 태그/속성
     ADD_TAGS: ["iframe"],

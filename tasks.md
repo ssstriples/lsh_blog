@@ -218,11 +218,14 @@
 
 ## 🤖 PHASE 6 — AI 명세서 작성 파이프라인
 
-- [ ] **T083** 요구조건 명세서 생성 프롬프트 템플릿 확정 (`05_ai_writing_pipeline.md` 기반)
-- [ ] **T084** 상세 기술 명세서 생성 프롬프트 템플릿 확정
-- [ ] **T085** (선택) 관리자 글쓰기 화면에 "AI 초안 생성" 버튼 추가 → 프롬프트 체인 호출
-- [ ] **T086** 생성된 문서를 `docs/generated/`에 저장하는 스크립트 작성
-- [ ] **T087** AI 파이프라인 사용기를 블로그 게시글로 발행 (첫 콘텐츠)
+- [x] **T083** 요구조건 명세서 생성 프롬프트 템플릿 확정 (`05_ai_writing_pipeline.md` 기반) — `backend/src/prompts/projectContext.ts`(스택·컨벤션 공통 블록) + `specPrompts.ts`의 `REQUIREMENTS_SYSTEM`(목적 → 사용자 스토리 → MoSCoW → 비기능 → 권한 매트릭스 → 가정/질문), 입력은 `<idea>` 태그로 분리. `05` 문서 §3를 확정본 구조로 갱신
+- [x] **T084** 상세 기술 명세서 생성 프롬프트 템플릿 확정 — `TECH_SPEC_SYSTEM`(API 표+JSON 예시, Prisma 변경, 백엔드/프론트 파일 구성, 에러 표, 보안 체크리스트, 테스트 케이스, tasks.md 형식 태스크 분해), 답 없는 질문은 "결정(검토 필요):"로 표시
+- [x] **T085** (선택) 관리자 글쓰기 화면에 "AI 초안 생성" 버튼 추가 → 프롬프트 체인 호출 — 백엔드 `lib/anthropic.ts`(`@anthropic-ai/sdk` 1.3.0, `claude-opus-5-5`, 키 없으면 기능만 비활성화) + `services/aiService.ts`(스트리밍 + `finalMessage()`, `betaZodOutputFormat` 구조화 출력, 시스템 프롬프트 캐싱, `fallbacks: "default"` 거절 폴백, SDK 에러 → AppError 매핑) + `GET /api/admin/ai/status`·`POST /api/admin/ai/draft`(🛡️, 성공 기준 1시간 10회). 프론트 `components/write/AiDraftDialog.tsx`(미리보기 후 "에디터에 넣기", 작성 중 내용 있으면 확인) — 관리자에게만 노출. 버튼은 3단계(초안)만 실행하고 1·2단계는 사람 검수가 필요해 CLI로 분리
+- [x] **T086** 생성된 문서를 `docs/generated/`에 저장하는 스크립트 작성 — `backend/src/scripts/aiPipeline.ts` + `pnpm ai:pipeline requirements|tech-spec`(frontmatter에 status/모델/토큰 기록, `--dry-run`·`--force`·`--from`·`--idea-file`, 덮어쓰기 방지, CRLF frontmatter 처리), `docs/generated/README.md`
+  - 기능 테스트 완료(실제 API 키가 없어 **로컬 mock Anthropic 서버**(`ANTHROPIC_BASE_URL`)로 검증, 비용 0): 33건 — 권한(비로그인 401/USER 403), 키 없음 503 안내, 입력 검증 400, 본문 1MB 초과 413·깨진 JSON 400, 성공 시 제목 정리/태그 정규화/HTML sanitize, **실제 전송 요청 확인**(모델·스트리밍·폴백 베타 헤더·`fallbacks`·effort·json_schema·`cache_control`·입력 태그 분리), 거절 422/잘림 502/429/401 매핑, Rate Limit 10회, CLI 저장·덮어쓰기 방지·2단계 입력·거절 시 파일 미생성. puppeteer로 다이얼로그 → 미리보기 → 에디터 반영 화면 6건 확인, Phase 5(34)·4(23) 회귀 통과, `next build` 성공
+  - 🐛 작업 중 발견·수정: ① 구조화 출력이 거절(빈 본문)·잘림(미완성 JSON)이면 SDK `finalMessage()`가 파싱 에러를 먼저 던져 500이 나던 문제 → 스트림 `message_delta`의 stop_reason을 따로 기록해 422/502로 응답 ② (기존) `express.json()` 기본 100kb 초과·깨진 JSON이 500으로 응답되던 문제 → 1mb 상한 + errorHandler에서 413/400 변환
+- [~] **T087** AI 파이프라인 사용기를 블로그 게시글로 발행 (첫 콘텐츠) — 파이프라인을 만든 과정은 `content/posts/2026-10-31-build-my-blog-12-ai-writing-pipeline.md`(DRAFT)로 작성. ⏳ 남은 일: `backend/.env`에 `ANTHROPIC_API_KEY` 설정 → 실제 주제로 1~3단계 실행 → 결과물로 사용기 보강 → 관리자 페이지에서 발행 (발행은 수동)
+- [x] **6 문서화** 📄 `docs/dev-log/2026-10-31_phase6_ai-writing-pipeline.md` + 블로그 원고 #12 작성
 
 ---
 
